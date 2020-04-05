@@ -87,6 +87,16 @@ func (s *State) Action(act action.Action) {
 		s.moveCursor(0, -int(v))
 	case action.CursorColumn:
 		s.Position.Col = int(v)
+	case action.Linebreak:
+		switch s.LineDiscipline {
+		case Raw:
+			s.moveCursor(1, 0)
+		case Cooked:
+			s.Position.Line++
+			s.Position.Col = 0
+		}
+	case action.CarriageReturn:
+		s.Position.Col = 0
 	case action.SaveCursorPosition:
 		pos := s.Position
 		s.SavedPosition = &pos

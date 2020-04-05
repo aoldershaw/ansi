@@ -173,6 +173,56 @@ func TestAnsi(t *testing.T) {
 			},
 		},
 		{
+			description: "carriage returns/linebreaks in Raw mode",
+			lineDiscipline: ansi.Raw,
+			actions: []action.Action{
+				action.Print("hello"),
+				action.Linebreak{},
+				action.Print("world"),
+				action.CarriageReturn{},
+				action.Print("gr8"),
+			},
+			printCalls: []printCall{
+				{
+					data: []byte("hello"),
+					pos:  action.Pos{Line: 0, Col: 0},
+				},
+				{
+					data: []byte("world"),
+					pos:  action.Pos{Line: 1, Col: 5},
+				},
+				{
+					data: []byte("gr8"),
+					pos:  action.Pos{Line: 1, Col: 0},
+				},
+			},
+		},
+		{
+			description: "carriage returns/linebreaks in Cooked mode",
+			lineDiscipline: ansi.Cooked,
+			actions: []action.Action{
+				action.Print("hello"),
+				action.Linebreak{},
+				action.Print("world"),
+				action.CarriageReturn{},
+				action.Print("gr8"),
+			},
+			printCalls: []printCall{
+				{
+					data: []byte("hello"),
+					pos:  action.Pos{Line: 0, Col: 0},
+				},
+				{
+					data: []byte("world"),
+					pos:  action.Pos{Line: 1, Col: 0},
+				},
+				{
+					data: []byte("gr8"),
+					pos:  action.Pos{Line: 1, Col: 0},
+				},
+			},
+		},
+		{
 			description: "can save/restore cursor position",
 			actions: []action.Action{
 				action.CursorPosition{Line: 123, Col: 456},
