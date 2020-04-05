@@ -85,7 +85,7 @@ var colourNames = [17]string{
 func (c Color) String() string { return colourNames[c] }
 
 func (p Pos) String() string {
-	return strconv.FormatInt(int64(p.X), 10) + ", " + strconv.FormatInt(int64(p.Y), 10)
+	return "L" + strconv.FormatInt(int64(p.Line), 10) + "C" + strconv.FormatInt(int64(p.Col), 10)
 }
 
 var eraseModeNames = [4]string{

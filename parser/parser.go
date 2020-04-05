@@ -215,8 +215,8 @@ func parseControlSequenceMode(p *Parser) stateFn {
 			secondNum = p.nums[1]
 		}
 		actions[0], ok = action.CursorPosition(action.Pos{
-			X: firstNum.withDefault(1),
-			Y: secondNum.withDefault(1),
+			Line: firstNum.withDefault(1),
+			Col:  secondNum.withDefault(1),
 		}), true
 	case 's':
 		actions[0], ok = action.SaveCursorPosition{}, true

@@ -55,8 +55,8 @@ const (
 )
 
 type Pos struct {
-	X int
-	Y int
+	Line int
+	Col  int
 }
 
 type EraseMode uint8
