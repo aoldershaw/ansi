@@ -42,6 +42,13 @@ func New(handler action.Handler) *Parser {
 	}
 }
 
+func NewWithChan() (*Parser, <-chan action.Action) {
+	c := make(chan action.Action)
+	return New(action.HandlerFunc(func(act action.Action) {
+		c <- act
+	})), c
+}
+
 func (p *Parser) Parse(input []byte) {
 	p.pos = 0
 	p.start = 0
