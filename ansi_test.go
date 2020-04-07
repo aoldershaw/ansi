@@ -18,12 +18,12 @@ type clearCall struct {
 	pos action.Pos
 }
 
-type spyPrinter struct {
+type spyOutput struct {
 	printCalls []printCall
 	clearCalls []clearCall
 }
 
-func (p *spyPrinter) Print(data []byte, style ansi.Style, pos action.Pos) {
+func (p *spyOutput) Print(data []byte, style ansi.Style, pos action.Pos) {
 	p.printCalls = append(p.printCalls, printCall{
 		data:  data,
 		style: style,
@@ -31,7 +31,7 @@ func (p *spyPrinter) Print(data []byte, style ansi.Style, pos action.Pos) {
 	})
 }
 
-func (p *spyPrinter) ClearRight(pos action.Pos) {
+func (p *spyOutput) ClearRight(pos action.Pos) {
 	p.clearCalls = append(p.clearCalls, clearCall{
 		pos: pos,
 	})
@@ -301,15 +301,15 @@ func TestAnsi(t *testing.T) {
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			spyPrinter := &spyPrinter{}
-			state := ansi.New(tt.lineDiscipline, spyPrinter)
+			spyOutput := &spyOutput{}
+			state := ansi.New(tt.lineDiscipline, spyOutput)
 
 			for _, act := range tt.actions {
 				state.Action(act)
 			}
 
-			g.Expect(spyPrinter.printCalls).To(Equal(tt.printCalls))
-			g.Expect(spyPrinter.clearCalls).To(Equal(tt.clearCalls))
+			g.Expect(spyOutput.printCalls).To(Equal(tt.printCalls))
+			g.Expect(spyOutput.clearCalls).To(Equal(tt.clearCalls))
 		})
 	}
 }

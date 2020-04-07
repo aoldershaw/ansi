@@ -5,7 +5,7 @@ import (
 	"github.com/aoldershaw/ansi/action"
 )
 
-type Printer interface {
+type Output interface {
 	Print(data []byte, style Style, pos action.Pos)
 	ClearRight(pos action.Pos)
 }
@@ -16,15 +16,15 @@ type State struct {
 	Position       action.Pos
 	SavedPosition  *action.Pos
 
-	printer Printer
+	output Output
 }
 
-func New(lineDiscipline LineDiscipline, printer Printer) *State {
+func New(lineDiscipline LineDiscipline, output Output) *State {
 	return &State{
 		LineDiscipline: lineDiscipline,
 		Style:          Style{},
 
-		printer: printer,
+		output: output,
 	}
 }
 
@@ -51,7 +51,7 @@ const (
 func (s *State) Action(act action.Action) {
 	switch v := act.(type) {
 	case action.Print:
-		s.printer.Print(v, s.Style, s.Position)
+		s.output.Print(v, s.Style, s.Position)
 		s.moveCursor(0, len(v))
 	case action.Reset:
 		s.Style = Style{}
@@ -113,13 +113,13 @@ func (s *State) Action(act action.Action) {
 				return
 			}
 			empty := bytes.Repeat([]byte{' '}, s.Position.Col)
-			s.printer.Print(empty, Style{}, startOfLine)
+			s.output.Print(empty, Style{}, startOfLine)
 		case action.EraseToEnd:
 			pos := s.Position
 			pos.Col++
-			s.printer.ClearRight(pos)
+			s.output.ClearRight(pos)
 		case action.EraseAll:
-			s.printer.ClearRight(startOfLine)
+			s.output.ClearRight(startOfLine)
 		}
 
 	case action.EraseDisplay:
