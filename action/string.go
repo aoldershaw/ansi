@@ -1,6 +1,9 @@
 package action
 
-import "strconv"
+import (
+	"encoding/json"
+	"strconv"
+)
 
 func (a Print) ActionString() string         { return "Print(" + string(a) + ")" }
 func (a Reset) ActionString() string         { return "Reset" }
@@ -63,26 +66,34 @@ func (a SaveCursorPosition) String() string    { return a.ActionString() }
 func (a RestoreCursorPosition) String() string { return a.ActionString() }
 
 var colourNames = [17]string{
-	"DefaultColor",
-	"Black",
-	"Red",
-	"Green",
-	"Yellow",
-	"Blue",
-	"Magenta",
-	"Cyan",
-	"White",
-	"BrightBlack",
-	"BrightRed",
-	"BrightGreen",
-	"BrightYellow",
-	"BrightBlue",
-	"BrightMagenta",
-	"BrightCyan",
-	"BrightWhite",
+	"",
+	"black",
+	"red",
+	"green",
+	"yellow",
+	"blue",
+	"magenta",
+	"cyan",
+	"white",
+	"bright-black",
+	"bright-red",
+	"bright-green",
+	"bright-yellow",
+	"bright-blue",
+	"bright-magenta",
+	"bright-cyan",
+	"bright-white",
 }
 
-func (c Color) String() string { return colourNames[c] }
+func (c Color) String() string {
+	if int(c) >= len(colourNames) {
+		return ""
+	}
+	return colourNames[c]
+}
+func (c Color) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.String())
+}
 
 func (p Pos) String() string {
 	return "L" + strconv.FormatInt(int64(p.Line), 10) + "C" + strconv.FormatInt(int64(p.Col), 10)
