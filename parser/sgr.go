@@ -1,6 +1,9 @@
 package parser
 
-import "github.com/aoldershaw/ansi/action"
+import (
+	"github.com/aoldershaw/ansi/action"
+	"github.com/aoldershaw/ansi/style"
+)
 
 // https://en.wikipedia.org/wiki/ANSI_escape_code#SGR
 
@@ -19,43 +22,43 @@ func init() {
 		7:  action.SetInverted(true),
 		20: action.SetFraktur(true),
 
-		30: action.SetForeground(action.Black),
-		31: action.SetForeground(action.Red),
-		32: action.SetForeground(action.Green),
-		33: action.SetForeground(action.Yellow),
-		34: action.SetForeground(action.Blue),
-		35: action.SetForeground(action.Magenta),
-		36: action.SetForeground(action.Cyan),
-		37: action.SetForeground(action.White),
-		39: action.SetForeground(action.DefaultColor),
+		30: action.SetForeground(style.Black),
+		31: action.SetForeground(style.Red),
+		32: action.SetForeground(style.Green),
+		33: action.SetForeground(style.Yellow),
+		34: action.SetForeground(style.Blue),
+		35: action.SetForeground(style.Magenta),
+		36: action.SetForeground(style.Cyan),
+		37: action.SetForeground(style.White),
+		39: action.SetForeground(style.DefaultColor),
 
-		40: action.SetBackground(action.Black),
-		41: action.SetBackground(action.Red),
-		42: action.SetBackground(action.Green),
-		43: action.SetBackground(action.Yellow),
-		44: action.SetBackground(action.Blue),
-		45: action.SetBackground(action.Magenta),
-		46: action.SetBackground(action.Cyan),
-		47: action.SetBackground(action.White),
-		49: action.SetBackground(action.DefaultColor),
+		40: action.SetBackground(style.Black),
+		41: action.SetBackground(style.Red),
+		42: action.SetBackground(style.Green),
+		43: action.SetBackground(style.Yellow),
+		44: action.SetBackground(style.Blue),
+		45: action.SetBackground(style.Magenta),
+		46: action.SetBackground(style.Cyan),
+		47: action.SetBackground(style.White),
+		49: action.SetBackground(style.DefaultColor),
 
-		90: action.SetForeground(action.BrightBlack),
-		91: action.SetForeground(action.BrightRed),
-		92: action.SetForeground(action.BrightGreen),
-		93: action.SetForeground(action.BrightYellow),
-		94: action.SetForeground(action.BrightBlue),
-		95: action.SetForeground(action.BrightMagenta),
-		96: action.SetForeground(action.BrightCyan),
-		97: action.SetForeground(action.BrightWhite),
+		90: action.SetForeground(style.BrightBlack),
+		91: action.SetForeground(style.BrightRed),
+		92: action.SetForeground(style.BrightGreen),
+		93: action.SetForeground(style.BrightYellow),
+		94: action.SetForeground(style.BrightBlue),
+		95: action.SetForeground(style.BrightMagenta),
+		96: action.SetForeground(style.BrightCyan),
+		97: action.SetForeground(style.BrightWhite),
 
-		100: action.SetBackground(action.BrightBlack),
-		101: action.SetBackground(action.BrightRed),
-		102: action.SetBackground(action.BrightGreen),
-		103: action.SetBackground(action.BrightYellow),
-		104: action.SetBackground(action.BrightBlue),
-		105: action.SetBackground(action.BrightMagenta),
-		106: action.SetBackground(action.BrightCyan),
-		107: action.SetBackground(action.BrightWhite),
+		100: action.SetBackground(style.BrightBlack),
+		101: action.SetBackground(style.BrightRed),
+		102: action.SetBackground(style.BrightGreen),
+		103: action.SetBackground(style.BrightYellow),
+		104: action.SetBackground(style.BrightBlue),
+		105: action.SetBackground(style.BrightMagenta),
+		106: action.SetBackground(style.BrightCyan),
+		107: action.SetBackground(style.BrightWhite),
 	}
 	for code, act := range codeActionsMap {
 		sgrParamToAction[code] = act

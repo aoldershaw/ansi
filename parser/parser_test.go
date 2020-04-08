@@ -3,6 +3,7 @@ package parser_test
 import (
 	"github.com/aoldershaw/ansi/action"
 	"github.com/aoldershaw/ansi/parser"
+	"github.com/aoldershaw/ansi/style"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/format"
 	"testing"
@@ -54,13 +55,13 @@ func TestParser_Actions(t *testing.T) {
 			input:       []byte("normal\x1b[31mred fg\x1b[42mgreen bg\x1b[91mbright red fg\x1b[102mbright green bg"),
 			actions: []action.Action{
 				action.Print("normal"),
-				action.SetForeground(action.Red),
+				action.SetForeground(style.Red),
 				action.Print("red fg"),
-				action.SetBackground(action.Green),
+				action.SetBackground(style.Green),
 				action.Print("green bg"),
-				action.SetForeground(action.BrightRed),
+				action.SetForeground(style.BrightRed),
 				action.Print("bright red fg"),
-				action.SetBackground(action.BrightGreen),
+				action.SetBackground(style.BrightGreen),
 				action.Print("bright green bg"),
 			},
 		},
@@ -74,7 +75,7 @@ func TestParser_Actions(t *testing.T) {
 				action.Reset{},
 				action.Print("reset again"),
 				action.Reset{},
-				action.SetForeground(action.Red),
+				action.SetForeground(style.Red),
 				action.Print("reset to red"),
 			},
 		},
@@ -104,11 +105,11 @@ func TestParser_Actions(t *testing.T) {
 			input:       []byte("\x1b[1;31;20mhello\x1b[;46m"),
 			actions: []action.Action{
 				action.SetBold(true),
-				action.SetForeground(action.Red),
+				action.SetForeground(style.Red),
 				action.SetFraktur(true),
 				action.Print("hello"),
 				action.Reset{},
-				action.SetBackground(action.Cyan),
+				action.SetBackground(style.Cyan),
 			},
 		},
 		{
@@ -273,10 +274,10 @@ func TestParser_Carryover(t *testing.T) {
 			input1:      []byte("\x1b[31mred text\x1b[m"),
 			input2:      []byte("\x1b[32mnow it's green"),
 			actions: []action.Action{
-				action.SetForeground(action.Red),
+				action.SetForeground(style.Red),
 				action.Print("red text"),
 				action.Reset{},
-				action.SetForeground(action.Green),
+				action.SetForeground(style.Green),
 				action.Print("now it's green"),
 			},
 		},
@@ -286,7 +287,7 @@ func TestParser_Carryover(t *testing.T) {
 			input2:      []byte("[32mgreen"),
 			actions: []action.Action{
 				action.Print("hello"),
-				action.SetForeground(action.Green),
+				action.SetForeground(style.Green),
 				action.Print("green"),
 			},
 		},
@@ -296,7 +297,7 @@ func TestParser_Carryover(t *testing.T) {
 			input2:      []byte("32mgreen"),
 			actions: []action.Action{
 				action.Print("hello"),
-				action.SetForeground(action.Green),
+				action.SetForeground(style.Green),
 				action.Print("green"),
 			},
 		},
@@ -306,7 +307,7 @@ func TestParser_Carryover(t *testing.T) {
 			input2:      []byte("mgreen"),
 			actions: []action.Action{
 				action.Print("hello"),
-				action.SetForeground(action.Green),
+				action.SetForeground(style.Green),
 				action.Print("green"),
 			},
 		},
@@ -316,7 +317,7 @@ func TestParser_Carryover(t *testing.T) {
 			input2:      []byte("mgreen and bold"),
 			actions: []action.Action{
 				action.Print("hello"),
-				action.SetForeground(action.Green),
+				action.SetForeground(style.Green),
 				action.SetBold(true),
 				action.Print("green and bold"),
 			},
@@ -327,7 +328,7 @@ func TestParser_Carryover(t *testing.T) {
 			input2:      []byte("1mgreen and bold"),
 			actions: []action.Action{
 				action.Print("hello"),
-				action.SetForeground(action.Green),
+				action.SetForeground(style.Green),
 				action.SetBold(true),
 				action.Print("green and bold"),
 			},
@@ -338,7 +339,7 @@ func TestParser_Carryover(t *testing.T) {
 			input2:      []byte("2;1mgreen and bold"),
 			actions: []action.Action{
 				action.Print("hello"),
-				action.SetForeground(action.Green),
+				action.SetForeground(style.Green),
 				action.SetBold(true),
 				action.Print("green and bold"),
 			},

@@ -39,9 +39,9 @@ func (s *State) Action(act action.Action) {
 	case action.Reset:
 		s.Style = style.Style{}
 	case action.SetForeground:
-		s.Style.Foreground = action.Color(v)
+		s.Style.Foreground = style.Color(v)
 	case action.SetBackground:
-		s.Style.Background = action.Color(v)
+		s.Style.Background = style.Color(v)
 	case action.SetBold:
 		s.Style.Bold = bool(v)
 	case action.SetFaint:

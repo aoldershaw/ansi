@@ -38,7 +38,7 @@ func (p *spyOutput) ClearRight(pos action.Pos) {
 	})
 }
 
-func TestAnsi(t *testing.T) {
+func TestAnsi_State(t *testing.T) {
 	for _, tt := range []struct {
 		description    string
 		lineDiscipline ansi.LineDiscipline
@@ -60,8 +60,8 @@ func TestAnsi(t *testing.T) {
 		{
 			description: "applies styles",
 			actions: []action.Action{
-				action.SetForeground(action.Red),
-				action.SetBackground(action.Blue),
+				action.SetForeground(style.Red),
+				action.SetBackground(style.Blue),
 				action.SetBold(true),
 				action.SetFraktur(true),
 				action.SetUnderline(true),
@@ -76,8 +76,8 @@ func TestAnsi(t *testing.T) {
 				{
 					data: []byte("some nicely formatted bytes here"),
 					style: style.Style{
-						Foreground: action.Red,
-						Background: action.Blue,
+						Foreground: style.Red,
+						Background: style.Blue,
 						Bold:       true,
 						Faint:      true,
 						Italic:     true,
@@ -93,7 +93,7 @@ func TestAnsi(t *testing.T) {
 		{
 			description: "resets styles",
 			actions: []action.Action{
-				action.SetForeground(action.Red),
+				action.SetForeground(style.Red),
 				action.SetBold(true),
 				action.Reset{},
 				action.Print("some unformatted bytes here"),

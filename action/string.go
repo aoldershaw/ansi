@@ -1,14 +1,14 @@
 package action
 
 import (
-	"encoding/json"
+	"github.com/aoldershaw/ansi/style"
 	"strconv"
 )
 
 func (a Print) ActionString() string         { return "Print(" + string(a) + ")" }
 func (a Reset) ActionString() string         { return "Reset" }
-func (a SetForeground) ActionString() string { return "SetForeground(" + Color(a).String() + ")" }
-func (a SetBackground) ActionString() string { return "SetBackground(" + Color(a).String() + ")" }
+func (a SetForeground) ActionString() string { return "SetForeground(" + style.Color(a).String() + ")" }
+func (a SetBackground) ActionString() string { return "SetBackground(" + style.Color(a).String() + ")" }
 func (a SetBold) ActionString() string       { return "SetBold(" + strconv.FormatBool(bool(a)) + ")" }
 func (a SetFaint) ActionString() string      { return "SetFaint(" + strconv.FormatBool(bool(a)) + ")" }
 func (a SetItalic) ActionString() string     { return "SetItalic(" + strconv.FormatBool(bool(a)) + ")" }
@@ -64,36 +64,6 @@ func (a EraseDisplay) String() string          { return a.ActionString() }
 func (a EraseLine) String() string             { return a.ActionString() }
 func (a SaveCursorPosition) String() string    { return a.ActionString() }
 func (a RestoreCursorPosition) String() string { return a.ActionString() }
-
-var colourNames = [17]string{
-	"",
-	"black",
-	"red",
-	"green",
-	"yellow",
-	"blue",
-	"magenta",
-	"cyan",
-	"white",
-	"bright-black",
-	"bright-red",
-	"bright-green",
-	"bright-yellow",
-	"bright-blue",
-	"bright-magenta",
-	"bright-cyan",
-	"bright-white",
-}
-
-func (c Color) String() string {
-	if int(c) >= len(colourNames) {
-		return ""
-	}
-	return colourNames[c]
-}
-func (c Color) MarshalJSON() ([]byte, error) {
-	return json.Marshal(c.String())
-}
 
 func (p Pos) String() string {
 	return "L" + strconv.FormatInt(int64(p.Line), 10) + "C" + strconv.FormatInt(int64(p.Col), 10)
