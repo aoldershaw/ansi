@@ -55,6 +55,10 @@ func (b *Buffered) Print(data []byte, style ansi.Style, pos action.Pos) {
 	}
 	// TODO: need to shift by current start line
 	if pos.Line >= len(b.Lines) {
+		spacerLen := pos.Col
+		if spacerLen > 0 {
+			data = append(spacer(spacerLen), data...)
+		}
 		b.Lines = append(b.Lines, Line{{Data: data, Style: style}})
 		return
 	}
@@ -83,23 +87,6 @@ func (b *Buffered) appendToLine(data []byte, style ansi.Style, pos action.Pos) {
 		return
 	}
 	b.Lines[pos.Line] = append(line, Chunk{Data: data, Style: style})
-}
-
-type interval struct {
-	L int
-	R int
-}
-
-func intervalWithWidth(start int, width int) interval {
-	return interval{L: start, R: start + width - 1}
-}
-
-func (i interval) contains(i2 interval) bool {
-	return i.L <= i2.L && i2.R <= i.R
-}
-
-func (i interval) overlaps(i2 interval) bool {
-	return i.R >= i2.L && i.L <= i2.R
 }
 
 func (b *Buffered) insertWithinLine(data []byte, style ansi.Style, pos action.Pos) {

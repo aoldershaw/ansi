@@ -110,6 +110,22 @@ func TestOutput_Print_InMemory(t *testing.T) {
 			},
 		},
 		{
+			description: "printing to a line not at Column 0 adds whitespace",
+			printCalls: []printCall{
+				{
+					data: []byte("bar"),
+					pos:  action.Pos{Line: 0, Col: 5},
+				},
+			},
+			lines: []output.Line{
+				{
+					{
+						Data: []byte("     bar"),
+					},
+				},
+			},
+		},
+		{
 			description: "overwrites existing chunk if prints overlap",
 			printCalls: []printCall{
 				{
