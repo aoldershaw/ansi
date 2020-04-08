@@ -408,13 +408,13 @@ func TestOutput_Print_InMemory(t *testing.T) {
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			b := output.NewBuffered(64, nil)
+			o := &output.InMemory{}
 
 			for _, pc := range tt.printCalls {
-				b.Print(pc.data, pc.style, pc.pos)
+				o.Print(pc.data, pc.style, pc.pos)
 			}
 
-			g.Expect(b.Lines).To(Equal(tt.lines))
+			g.Expect(o.Lines).To(Equal(tt.lines))
 		})
 	}
 }
