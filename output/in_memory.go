@@ -164,6 +164,32 @@ func (b InMemory) lineLength(i int) int {
 	return l
 }
 
+func (b *InMemory) ClearRight(pos action.Pos) {
+	if pos.Line < 0 || pos.Line >= len(b.Lines) {
+		return
+	}
+	if pos.Col < 0 {
+		pos.Col = 0
+	}
+	line := b.Lines[pos.Line]
+	chunkEnd := 0
+	for i := 0; i < len(line); i++ {
+		chunk := &line[i]
+		chunkStart := chunkEnd
+		chunkEnd += len(chunk.Data)
+		if chunkEnd < pos.Col {
+			continue
+		}
+		chunk.Data = chunk.Data[:pos.Col - chunkStart]
+		keepUpToChunk := i
+		if len(chunk.Data) == 0 {
+			keepUpToChunk--
+		}
+		b.Lines[pos.Line] = line[:keepUpToChunk + 1]
+		return
+	}
+}
+
 func Spacer(length int) []byte {
 	if length <= 0 {
 		return nil

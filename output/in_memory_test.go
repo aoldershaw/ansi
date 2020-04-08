@@ -14,6 +14,10 @@ type printCall struct {
 	pos   action.Pos
 }
 
+type clearCall struct {
+	pos action.Pos
+}
+
 func TestInMemory_Print(t *testing.T) {
 	for _, tt := range []struct {
 		description string
@@ -412,6 +416,177 @@ func TestInMemory_Print(t *testing.T) {
 
 			for _, pc := range tt.printCalls {
 				o.Print(pc.data, pc.style, pc.pos)
+			}
+
+			g.Expect(o.Lines).To(Equal(tt.lines))
+		})
+	}
+}
+
+
+func TestInMemory_ClearRight(t *testing.T) {
+	for _, tt := range []struct {
+		description string
+		initLines   []output.Line
+		clearCalls  []clearCall
+		lines       []output.Line
+	}{
+		{
+			description: "clears within a chunk",
+			initLines: []output.Line{
+				{
+					{
+						Data: []byte("abcdefghi"),
+					},
+				},
+			},
+			clearCalls: []clearCall{
+				{
+					pos: action.Pos{Line: 0, Col: 3},
+				},
+			},
+			lines: []output.Line{
+				{
+					{
+						Data: []byte("abc"),
+					},
+				},
+			},
+		},
+		{
+			description: "clears multiple chunks",
+			initLines: []output.Line{
+				{
+					{
+						Data: []byte("abc"),
+					},
+					{
+						Data: []byte("def"),
+					},
+					{
+						Data: []byte("ghi"),
+					},
+				},
+			},
+			clearCalls: []clearCall{
+				{
+					pos: action.Pos{Line: 0, Col: 2},
+				},
+			},
+			lines: []output.Line{
+				{
+					{
+						Data: []byte("ab"),
+					},
+				},
+			},
+		},
+		{
+			description: "clears from the second chunk on",
+			initLines: []output.Line{
+				{
+					{
+						Data: []byte("abc"),
+					},
+					{
+						Data: []byte("def"),
+					},
+					{
+						Data: []byte("ghi"),
+					},
+				},
+			},
+			clearCalls: []clearCall{
+				{
+					pos: action.Pos{Line: 0, Col: 5},
+				},
+			},
+			lines: []output.Line{
+				{
+					{
+						Data: []byte("abc"),
+					},
+					{
+						Data: []byte("de"),
+					},
+				},
+			},
+		},
+		{
+			description: "fully clearing a chunk removes it",
+			initLines: []output.Line{
+				{
+					{
+						Data: []byte("abc"),
+					},
+					{
+						Data: []byte("def"),
+					},
+					{
+						Data: []byte("ghi"),
+					},
+				},
+			},
+			clearCalls: []clearCall{
+				{
+					pos: action.Pos{Line: 0, Col: 0},
+				},
+			},
+			lines: []output.Line{
+				{},
+			},
+		},
+		{
+			description: "clearing an out of bounds line is a noop",
+			initLines: []output.Line{},
+			clearCalls: []clearCall{
+				{
+					pos: action.Pos{Line: 0, Col: 0},
+				},
+			},
+			lines: []output.Line{},
+		},
+		{
+			description: "clearing a negative line is a noop",
+			initLines: []output.Line{},
+			clearCalls: []clearCall{
+				{
+					pos: action.Pos{Line: -1, Col: 0},
+				},
+			},
+			lines: []output.Line{},
+		},
+		{
+			description: "clearing from a negative column is the same as from 0",
+			initLines: []output.Line{
+				{
+					{
+						Data: []byte("abc"),
+					},
+					{
+						Data: []byte("def"),
+					},
+					{
+						Data: []byte("ghi"),
+					},
+				},
+			},
+			clearCalls: []clearCall{
+				{
+					pos: action.Pos{Line: 0, Col: -1},
+				},
+			},
+			lines: []output.Line{
+				{},
+			},
+		},
+	} {
+		t.Run(tt.description, func(t *testing.T) {
+			g := NewGomegaWithT(t)
+			o := &output.InMemory{Lines: tt.initLines}
+
+			for _, cc := range tt.clearCalls {
+				o.ClearRight(cc.pos)
 			}
 
 			g.Expect(o.Lines).To(Equal(tt.lines))
