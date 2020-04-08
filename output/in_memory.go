@@ -64,10 +64,15 @@ func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) 
 	lineLen := b.lineLength(pos.Line)
 	spacerLen := pos.Col - lineLen
 
-	lastChunk := &line[len(line)-1]
-	if spacerLen > 0 {
-		lastChunk.Data = append(lastChunk.Data, Spacer(spacerLen)...)
+	spacer := Spacer(spacerLen)
+	if len(line) == 0 {
+		data = append(spacer, data...)
+		b.Lines[pos.Line] = append(line, Chunk{Data: data, Style: style})
+		return
 	}
+
+	lastChunk := &line[len(line)-1]
+	lastChunk.Data = append(lastChunk.Data, spacer...)
 	if lastChunk.Style == style {
 		lastChunk.Data = append(lastChunk.Data, data...)
 		return

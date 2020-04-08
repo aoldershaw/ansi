@@ -21,6 +21,7 @@ type clearCall struct {
 func TestInMemory_Print(t *testing.T) {
 	for _, tt := range []struct {
 		description string
+		initLines   []output.Line
 		printCalls  []printCall
 		lines       []output.Line
 	}{
@@ -89,6 +90,25 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					{
 						Data: []byte("foobar"),
+					},
+				},
+			},
+		},
+		{
+			description: "printing to an empty existing line works",
+			initLines: []output.Line{
+				{},
+			},
+			printCalls: []printCall{
+				{
+					data: []byte("foo"),
+					pos:  action.Pos{Line: 0, Col: 0},
+				},
+			},
+			lines: []output.Line{
+				{
+					{
+						Data: []byte("foo"),
 					},
 				},
 			},
@@ -412,7 +432,7 @@ func TestInMemory_Print(t *testing.T) {
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			o := &output.InMemory{}
+			o := &output.InMemory{Lines: tt.initLines}
 
 			for _, pc := range tt.printCalls {
 				o.Print(pc.data, pc.style, pc.pos)
