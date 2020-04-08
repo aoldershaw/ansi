@@ -1,44 +1,27 @@
 package ansi
 
 import (
-	"bytes"
 	"github.com/aoldershaw/ansi/action"
+	"github.com/aoldershaw/ansi/output"
+	"github.com/aoldershaw/ansi/style"
 )
 
-type Output interface {
-	Print(data []byte, style Style, pos action.Pos)
-	ClearRight(pos action.Pos)
-}
-
 type State struct {
-	Style          Style
+	Style          style.Style
 	LineDiscipline LineDiscipline
 	Position       action.Pos
 	SavedPosition  *action.Pos
 
-	output Output
+	output output.Output
 }
 
-func New(lineDiscipline LineDiscipline, output Output) *State {
+func New(lineDiscipline LineDiscipline, output output.Output) *State {
 	return &State{
 		LineDiscipline: lineDiscipline,
-		Style:          Style{},
+		Style:          style.Style{},
 
 		output: output,
 	}
-}
-
-type Style struct {
-	Foreground action.Color `json:"fg,omitempty"`
-	Background action.Color `json:"bg,omitempty"`
-	Bold       bool         `json:"bold,omitempty"`
-	Faint      bool         `json:"faint,omitempty"`
-	Italic     bool         `json:"italic,omitempty"`
-	Underline  bool         `json:"underline,omitempty"`
-	Blink      bool         `json:"blink,omitempty"`
-	Inverted   bool         `json:"inverted,omitempty"`
-	Fraktur    bool         `json:"fraktur,omitempty"`
-	Framed     bool         `json:"framed,omitempty"`
 }
 
 type LineDiscipline int
@@ -54,7 +37,7 @@ func (s *State) Action(act action.Action) {
 		s.output.Print(v, s.Style, s.Position)
 		s.moveCursor(0, len(v))
 	case action.Reset:
-		s.Style = Style{}
+		s.Style = style.Style{}
 	case action.SetForeground:
 		s.Style.Foreground = action.Color(v)
 	case action.SetBackground:
@@ -112,8 +95,8 @@ func (s *State) Action(act action.Action) {
 			if s.Position.Col == 0 {
 				return
 			}
-			empty := bytes.Repeat([]byte{' '}, s.Position.Col)
-			s.output.Print(empty, Style{}, startOfLine)
+			empty := output.Spacer(s.Position.Col)
+			s.output.Print(empty, style.Style{}, startOfLine)
 		case action.EraseToEnd:
 			pos := s.Position
 			pos.Col++

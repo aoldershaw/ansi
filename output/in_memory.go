@@ -2,8 +2,8 @@ package output
 
 import (
 	"bytes"
-	"github.com/aoldershaw/ansi"
 	"github.com/aoldershaw/ansi/action"
+	"github.com/aoldershaw/ansi/style"
 )
 
 // Used as an optimization to avoid heap allocations
@@ -19,7 +19,7 @@ func init() {
 
 type Chunk struct {
 	Data  []byte     `json:"data"`
-	Style ansi.Style `json:"style,omitempty"`
+	Style style.Style `json:"style,omitempty"`
 }
 
 type Line = []Chunk
@@ -28,7 +28,7 @@ type InMemory struct {
 	Lines []Line
 }
 
-func (b *InMemory) Print(data []byte, style ansi.Style, pos action.Pos) {
+func (b *InMemory) Print(data []byte, style style.Style, pos action.Pos) {
 	if pos.Line < 0 {
 		pos.Line = 0
 	}
@@ -43,7 +43,7 @@ func (b *InMemory) Print(data []byte, style ansi.Style, pos action.Pos) {
 	if pos.Line >= len(b.Lines) {
 		spacerLen := pos.Col
 		if spacerLen > 0 {
-			data = append(spacer(spacerLen), data...)
+			data = append(Spacer(spacerLen), data...)
 		}
 		b.Lines = append(b.Lines, Line{{Data: data, Style: style}})
 		return
@@ -58,7 +58,7 @@ func (b *InMemory) Print(data []byte, style ansi.Style, pos action.Pos) {
 	}
 }
 
-func (b *InMemory) appendToLine(data []byte, style ansi.Style, pos action.Pos) {
+func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) {
 	line := b.Lines[pos.Line]
 
 	lineLen := b.lineLength(pos.Line)
@@ -66,7 +66,7 @@ func (b *InMemory) appendToLine(data []byte, style ansi.Style, pos action.Pos) {
 
 	lastChunk := &line[len(line)-1]
 	if spacerLen > 0 {
-		lastChunk.Data = append(lastChunk.Data, spacer(spacerLen)...)
+		lastChunk.Data = append(lastChunk.Data, Spacer(spacerLen)...)
 	}
 	if lastChunk.Style == style {
 		lastChunk.Data = append(lastChunk.Data, data...)
@@ -75,7 +75,7 @@ func (b *InMemory) appendToLine(data []byte, style ansi.Style, pos action.Pos) {
 	b.Lines[pos.Line] = append(line, Chunk{Data: data, Style: style})
 }
 
-func (b *InMemory) insertWithinLine(data []byte, style ansi.Style, pos action.Pos) {
+func (b *InMemory) insertWithinLine(data []byte, style style.Style, pos action.Pos) {
 	line := b.Lines[pos.Line]
 	chunkStart := 0
 	for i := 0; i < len(line); i++ {
@@ -115,7 +115,7 @@ func (b *InMemory) insertWithinLine(data []byte, style ansi.Style, pos action.Po
 	}
 }
 
-func (b InMemory) insertInsideChunk(data []byte, style ansi.Style, lineNum, relCol int, chunkIndex int) {
+func (b InMemory) insertInsideChunk(data []byte, style style.Style, lineNum, relCol int, chunkIndex int) {
 	chunk := b.Lines[lineNum][chunkIndex]
 	if chunk.Style == style {
 		copy(b.Lines[lineNum][chunkIndex].Data[relCol:], data)
@@ -164,11 +164,11 @@ func (b InMemory) lineLength(i int) int {
 	return l
 }
 
-func spacer(length int) []byte {
+func Spacer(length int) []byte {
 	if length <= 0 {
 		return nil
 	}
-	// Minor optimization: if spacer is small enough, don't need to perform a heap alloc
+	// Minor optimization: if Spacer is small enough, don't need to perform a heap alloc
 	if length <= spacerBytesSize {
 		return spacerPreallocBytes[:length]
 	}

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"github.com/aoldershaw/ansi"
 	"github.com/aoldershaw/ansi/action"
+	"github.com/aoldershaw/ansi/style"
 	. "github.com/onsi/gomega"
 	"testing"
 )
 
 type printCall struct {
 	data  []byte
-	style ansi.Style
+	style style.Style
 	pos   action.Pos
 }
 
@@ -23,7 +24,7 @@ type spyOutput struct {
 	clearCalls []clearCall
 }
 
-func (p *spyOutput) Print(data []byte, style ansi.Style, pos action.Pos) {
+func (p *spyOutput) Print(data []byte, style style.Style, pos action.Pos) {
 	p.printCalls = append(p.printCalls, printCall{
 		data:  data,
 		style: style,
@@ -74,7 +75,7 @@ func TestAnsi(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("some nicely formatted bytes here"),
-					style: ansi.Style{
+					style: style.Style{
 						Foreground: action.Red,
 						Background: action.Blue,
 						Bold:       true,
@@ -100,7 +101,7 @@ func TestAnsi(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("some unformatted bytes here"),
-					style: ansi.Style{},
+					style: style.Style{},
 				},
 			},
 		},
@@ -173,7 +174,7 @@ func TestAnsi(t *testing.T) {
 			},
 		},
 		{
-			description: "carriage returns/linebreaks in Raw mode",
+			description:    "carriage returns/linebreaks in Raw mode",
 			lineDiscipline: ansi.Raw,
 			actions: []action.Action{
 				action.Print("hello"),
@@ -198,7 +199,7 @@ func TestAnsi(t *testing.T) {
 			},
 		},
 		{
-			description: "carriage returns/linebreaks in Cooked mode",
+			description:    "carriage returns/linebreaks in Cooked mode",
 			lineDiscipline: ansi.Cooked,
 			actions: []action.Action{
 				action.Print("hello"),
