@@ -18,7 +18,7 @@ func init() {
 }
 
 type Chunk struct {
-	Data  []byte     `json:"data"`
+	Data  []byte      `json:"data"`
 	Style style.Style `json:"style,omitempty"`
 }
 
@@ -43,7 +43,10 @@ func (b *InMemory) Print(data []byte, style style.Style, pos action.Pos) {
 	if pos.Line >= len(b.Lines) {
 		spacerLen := pos.Col
 		if spacerLen > 0 {
-			data = append(Spacer(spacerLen), data...)
+			newData := make([]byte, spacerLen+len(data))
+			copy(newData, Spacer(spacerLen))
+			copy(newData[spacerLen:], data)
+			data = newData
 		}
 		b.Lines = append(b.Lines, Line{{Data: data, Style: style}})
 		return
@@ -66,8 +69,10 @@ func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) 
 
 	spacer := Spacer(spacerLen)
 	if len(line) == 0 {
-		data = append(spacer, data...)
-		b.Lines[pos.Line] = append(line, Chunk{Data: data, Style: style})
+		newData := make([]byte, spacerLen+len(data))
+		copy(newData, spacer)
+		copy(newData[spacerLen:], data)
+		b.Lines[pos.Line] = append(line, Chunk{Data: newData, Style: style})
 		return
 	}
 
@@ -185,12 +190,12 @@ func (b *InMemory) ClearRight(pos action.Pos) {
 		if chunkEnd < pos.Col {
 			continue
 		}
-		chunk.Data = chunk.Data[:pos.Col - chunkStart]
+		chunk.Data = chunk.Data[:pos.Col-chunkStart]
 		keepUpToChunk := i
 		if len(chunk.Data) == 0 {
 			keepUpToChunk--
 		}
-		b.Lines[pos.Line] = line[:keepUpToChunk + 1]
+		b.Lines[pos.Line] = line[:keepUpToChunk+1]
 		return
 	}
 }

@@ -102,13 +102,22 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 0, Col: 0},
+					pos:  action.Pos{Line: 0, Col: 3},
+				},
+				{
+					data: []byte("bar"),
+					pos:  action.Pos{Line: 1, Col: 6},
 				},
 			},
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("foo"),
+						Data: []byte("   foo"),
+					},
+				},
+				{
+					{
+						Data: []byte("      bar"),
 					},
 				},
 			},
@@ -137,14 +146,23 @@ func TestInMemory_Print(t *testing.T) {
 			description: "printing to a line not at Column 0 adds whitespace",
 			printCalls: []printCall{
 				{
-					data: []byte("bar"),
+					data: []byte("foo"),
 					pos:  action.Pos{Line: 0, Col: 5},
+				},
+				{
+					data: []byte("bar"),
+					pos:  action.Pos{Line: 1, Col: 7},
 				},
 			},
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("     bar"),
+						Data: []byte("     foo"),
+					},
+				},
+				{
+					{
+						Data: []byte("       bar"),
 					},
 				},
 			},
