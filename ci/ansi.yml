@@ -1,12 +1,15 @@
 jobs:
-  - name: test
+  - name: unit
     plan:
       - get: ansi
+        trigger: true
       - task: unit
         file: ansi/ci/tasks/unit.yml
   - name: fuzz
     plan:
       - get: ansi
+        trigger: true
+        passed: [unit]
       - task: local-regression
         file: ansi/ci/tasks/fuzzit.yml
         params:
