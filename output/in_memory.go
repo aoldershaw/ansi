@@ -67,22 +67,28 @@ func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) 
 	lineLen := b.lineLength(pos.Line)
 	spacerLen := pos.Col - lineLen
 
-	spacer := Spacer(spacerLen)
 	if len(line) == 0 {
-		newData := make([]byte, spacerLen+len(data))
-		copy(newData, spacer)
-		copy(newData[spacerLen:], data)
-		b.Lines[pos.Line] = append(line, Chunk{Data: newData, Style: style})
+		b.addFirstChunk(data, style, pos)
 		return
 	}
 
 	lastChunk := &line[len(line)-1]
-	lastChunk.Data = append(lastChunk.Data, spacer...)
+	lastChunk.Data = append(lastChunk.Data, Spacer(spacerLen)...)
 	if lastChunk.Style == style {
 		lastChunk.Data = append(lastChunk.Data, data...)
 		return
 	}
 	b.Lines[pos.Line] = append(line, Chunk{Data: data, Style: style})
+}
+
+func (b *InMemory) addFirstChunk(data []byte, style style.Style, pos action.Pos) {
+	if pos.Col > 0 {
+		newData := make([]byte, pos.Col+len(data))
+		copy(newData, Spacer(pos.Col))
+		copy(newData[pos.Col:], data)
+		data = newData
+	}
+	b.Lines[pos.Line] = Line{{Data: data, Style: style}}
 }
 
 func (b *InMemory) insertWithinLine(data []byte, style style.Style, pos action.Pos) {
