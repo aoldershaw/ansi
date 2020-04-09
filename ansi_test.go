@@ -174,6 +174,25 @@ func TestAnsi_State(t *testing.T) {
 			},
 		},
 		{
+			description: "can't move cursor beyond current size",
+			actions: []action.Action{
+				action.Print("(0,0)"),
+				action.CursorDown(1000),
+				action.CursorForward(1000),
+				action.Print("(48,80)"),
+			},
+			printCalls: []printCall{
+				{
+					data: []byte("(0,0)"),
+					pos:  action.Pos{Line: 0, Col: 0},
+				},
+				{
+					data: []byte("(48,80)"),
+					pos:  action.Pos{Line: 48, Col: 80},
+				},
+			},
+		},
+		{
 			description:    "carriage returns/linebreaks in Raw mode",
 			lineDiscipline: ansi.Raw,
 			actions: []action.Action{
@@ -224,9 +243,63 @@ func TestAnsi_State(t *testing.T) {
 			},
 		},
 		{
+			description:    "linebreaks can expand max screen height",
+			lineDiscipline: ansi.Cooked,
+			actions: []action.Action{
+				action.Print("this one won't expand the screen size!"),
+				action.Linebreak{},
+				action.CursorDown(1000),
+				action.Print("but this one will!"),
+				action.Linebreak{},
+				action.CursorUp(1000),
+				action.CursorDown(1000),
+				action.Print("(49,0)"),
+			},
+			printCalls: []printCall{
+				{
+					data: []byte("this one won't expand the screen size!"),
+					pos:  action.Pos{Line: 0, Col: 0},
+				},
+				{
+					data: []byte("but this one will!"),
+					pos:  action.Pos{Line: 48, Col: 0},
+				},
+				{
+					data: []byte("(49,0)"),
+					pos:  action.Pos{Line: 49, Col: 0},
+				},
+			},
+		},
+		{
+			description:    "prints can expand the screen width",
+			lineDiscipline: ansi.Cooked,
+			actions: []action.Action{
+				action.Print("this print isn't more than 80 chars!"),
+				action.CursorColumn(1000),
+				action.Print("(0,80)"),
+				action.Linebreak{},
+				action.CursorForward(1000),
+				action.Print("(1,86)"),
+			},
+			printCalls: []printCall{
+				{
+					data: []byte("this print isn't more than 80 chars!"),
+					pos:  action.Pos{Line: 0, Col: 0},
+				},
+				{
+					data: []byte("(0,80)"),
+					pos:  action.Pos{Line: 0, Col: 80},
+				},
+				{
+					data: []byte("(1,86)"),
+					pos:  action.Pos{Line: 1, Col: 86},
+				},
+			},
+		},
+		{
 			description: "can save/restore cursor position",
 			actions: []action.Action{
-				action.CursorPosition{Line: 123, Col: 456},
+				action.CursorPosition{Line: 12, Col: 34},
 				action.SaveCursorPosition{},
 				action.CursorPosition{Line: 0, Col: 0},
 				action.RestoreCursorPosition{},
@@ -235,7 +308,7 @@ func TestAnsi_State(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("i'm back!"),
-					pos:  action.Pos{Line: 123, Col: 456},
+					pos:  action.Pos{Line: 12, Col: 34},
 				},
 			},
 		},

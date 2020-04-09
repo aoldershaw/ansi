@@ -6,11 +6,19 @@ import (
 	"github.com/aoldershaw/ansi/style"
 )
 
+const (
+	defaultLines = 48
+	defaultCols  = 80
+)
+
 type State struct {
 	Style          style.Style
 	LineDiscipline LineDiscipline
 	Position       action.Pos
 	SavedPosition  *action.Pos
+
+	MaxLine int
+	MaxCol  int
 
 	output output.Output
 }
@@ -19,6 +27,10 @@ func New(lineDiscipline LineDiscipline, output output.Output) *State {
 	return &State{
 		LineDiscipline: lineDiscipline,
 		Style:          style.Style{},
+
+		// TODO: functional options for this (and LineDiscipline)
+		MaxLine: defaultLines,
+		MaxCol:  defaultCols,
 
 		output: output,
 	}
@@ -35,7 +47,11 @@ func (s *State) Action(act action.Action) {
 	switch v := act.(type) {
 	case action.Print:
 		s.output.Print(v, s.Style, s.Position)
-		s.moveCursor(0, len(v))
+		endCol := s.Position.Col + len(v)
+		if endCol > s.MaxCol {
+			s.MaxCol = endCol
+		}
+		s.Position.Col = endCol
 	case action.Reset:
 		s.Style = style.Style{}
 	case action.SetForeground:
@@ -59,7 +75,7 @@ func (s *State) Action(act action.Action) {
 	case action.SetFramed:
 		s.Style.Framed = bool(v)
 	case action.CursorPosition:
-		s.Position = action.Pos(v)
+		s.moveCursorTo(v.Line, v.Col)
 	case action.CursorUp:
 		s.moveCursor(-int(v), 0)
 	case action.CursorDown:
@@ -69,14 +85,17 @@ func (s *State) Action(act action.Action) {
 	case action.CursorBack:
 		s.moveCursor(0, -int(v))
 	case action.CursorColumn:
-		s.Position.Col = int(v)
+		s.moveCursorTo(s.Position.Line, int(v))
 	case action.Linebreak:
 		switch s.LineDiscipline {
 		case Raw:
-			s.moveCursor(1, 0)
+			s.Position.Line++
 		case Cooked:
 			s.Position.Line++
 			s.Position.Col = 0
+		}
+		if s.Position.Line > s.MaxLine {
+			s.MaxLine = s.Position.Line
 		}
 	case action.CarriageReturn:
 		s.Position.Col = 0
@@ -110,13 +129,23 @@ func (s *State) Action(act action.Action) {
 	}
 }
 
-func (s *State) moveCursor(r, c int) {
-	s.Position.Line += r
-	s.Position.Col += c
+func (s *State) moveCursorTo(l, c int) {
+	s.Position.Line = l
+	s.Position.Col = c
 	if s.Position.Line < 0 {
 		s.Position.Line = 0
 	}
 	if s.Position.Col < 0 {
 		s.Position.Col = 0
 	}
+	if s.Position.Line > s.MaxLine {
+		s.Position.Line = s.MaxLine
+	}
+	if s.Position.Col > s.MaxCol {
+		s.Position.Col = s.MaxCol
+	}
+}
+
+func (s *State) moveCursor(dl, dc int) {
+	s.moveCursorTo(s.Position.Line + dl, s.Position.Col + dc)
 }
