@@ -23,12 +23,12 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("hello"),
+						Data: output.Text("hello"),
 					},
 				},
 				{
 					{
-						Data: []byte("world"),
+						Data: output.Text("world"),
 					},
 				},
 			},
@@ -42,16 +42,16 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("hello "),
+						Data: output.Text("hello "),
 					},
 					{
-						Data: []byte("world"),
+						Data:  []byte("world"),
 						Style: style.Style{Bold: true},
 					},
 				},
 				{
 					{
-						Data: []byte("this is red"),
+						Data:  []byte("this is red"),
 						Style: style.Style{Foreground: style.Red},
 					},
 				},
@@ -66,16 +66,16 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("hello "),
+						Data: output.Text("hello "),
 					},
 					{
-						Data: []byte("world"),
+						Data:  []byte("world"),
 						Style: style.Style{Bold: true},
 					},
 				},
 				{
 					{
-						Data: []byte("this is red"),
+						Data:  []byte("this is red"),
 						Style: style.Style{Foreground: style.Red},
 					},
 				},
@@ -90,11 +90,11 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("this is red"),
+						Data:  []byte("this is red"),
 						Style: style.Style{Foreground: style.Red},
 					},
 					{
-						Data: []byte(" but this is not"),
+						Data: output.Text(" but this is not"),
 					},
 				},
 			},
@@ -108,7 +108,7 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("goodbye world"),
+						Data: output.Text("goodbye world"),
 					},
 				},
 			},
@@ -122,7 +122,7 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("goodbye world"),
+						Data: output.Text("goodbye world"),
 					},
 				},
 			},
@@ -136,7 +136,7 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("nevermind"),
+						Data: output.Text("nevermind"),
 					},
 				},
 			},

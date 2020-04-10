@@ -2,6 +2,7 @@ package output
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/aoldershaw/ansi/action"
 	"github.com/aoldershaw/ansi/style"
 )
@@ -17,8 +18,23 @@ func init() {
 	}
 }
 
+type Text []byte
+
+func (t Text) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(t))
+}
+
+func (t *Text) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*t = Text(s)
+	return nil
+}
+
 type Chunk struct {
-	Data  []byte      `json:"data"`
+	Data  Text        `json:"data"`
 	Style style.Style `json:"style,omitempty"`
 }
 

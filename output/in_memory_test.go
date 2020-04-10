@@ -1,6 +1,7 @@
 package output_test
 
 import (
+	"encoding/json"
 	"github.com/aoldershaw/ansi/action"
 	"github.com/aoldershaw/ansi/output"
 	"github.com/aoldershaw/ansi/style"
@@ -36,7 +37,7 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("foo"),
+						Data: output.Text("foo"),
 					},
 				},
 			},
@@ -53,7 +54,7 @@ func TestInMemory_Print(t *testing.T) {
 				{},
 				{
 					{
-						Data: []byte("foo"),
+						Data: output.Text("foo"),
 					},
 				},
 			},
@@ -69,7 +70,7 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("foo"),
+						Data: output.Text("foo"),
 					},
 				},
 			},
@@ -89,7 +90,7 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("foobar"),
+						Data: output.Text("foobar"),
 					},
 				},
 			},
@@ -112,12 +113,12 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("   foo"),
+						Data: output.Text("   foo"),
 					},
 				},
 				{
 					{
-						Data: []byte("      bar"),
+						Data: output.Text("      bar"),
 					},
 				},
 			},
@@ -137,7 +138,7 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("foo  bar"),
+						Data: output.Text("foo  bar"),
 					},
 				},
 			},
@@ -157,12 +158,12 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("     foo"),
+						Data: output.Text("     foo"),
 					},
 				},
 				{
 					{
-						Data: []byte("       bar"),
+						Data: output.Text("       bar"),
 					},
 				},
 			},
@@ -182,7 +183,7 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("fbar"),
+						Data: output.Text("fbar"),
 					},
 				},
 			},
@@ -202,7 +203,7 @@ func TestInMemory_Print(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("fbaro"),
+						Data: output.Text("fbaro"),
 					},
 				},
 			},
@@ -461,7 +462,6 @@ func TestInMemory_Print(t *testing.T) {
 	}
 }
 
-
 func TestInMemory_ClearRight(t *testing.T) {
 	for _, tt := range []struct {
 		description string
@@ -474,7 +474,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			initLines: []output.Line{
 				{
 					{
-						Data: []byte("abcdefghi"),
+						Data: output.Text("abcdefghi"),
 					},
 				},
 			},
@@ -486,7 +486,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("abc"),
+						Data: output.Text("abc"),
 					},
 				},
 			},
@@ -496,13 +496,13 @@ func TestInMemory_ClearRight(t *testing.T) {
 			initLines: []output.Line{
 				{
 					{
-						Data: []byte("abc"),
+						Data: output.Text("abc"),
 					},
 					{
-						Data: []byte("def"),
+						Data: output.Text("def"),
 					},
 					{
-						Data: []byte("ghi"),
+						Data: output.Text("ghi"),
 					},
 				},
 			},
@@ -514,7 +514,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("ab"),
+						Data: output.Text("ab"),
 					},
 				},
 			},
@@ -524,13 +524,13 @@ func TestInMemory_ClearRight(t *testing.T) {
 			initLines: []output.Line{
 				{
 					{
-						Data: []byte("abc"),
+						Data: output.Text("abc"),
 					},
 					{
-						Data: []byte("def"),
+						Data: output.Text("def"),
 					},
 					{
-						Data: []byte("ghi"),
+						Data: output.Text("ghi"),
 					},
 				},
 			},
@@ -542,10 +542,10 @@ func TestInMemory_ClearRight(t *testing.T) {
 			lines: []output.Line{
 				{
 					{
-						Data: []byte("abc"),
+						Data: output.Text("abc"),
 					},
 					{
-						Data: []byte("de"),
+						Data: output.Text("de"),
 					},
 				},
 			},
@@ -555,13 +555,13 @@ func TestInMemory_ClearRight(t *testing.T) {
 			initLines: []output.Line{
 				{
 					{
-						Data: []byte("abc"),
+						Data: output.Text("abc"),
 					},
 					{
-						Data: []byte("def"),
+						Data: output.Text("def"),
 					},
 					{
-						Data: []byte("ghi"),
+						Data: output.Text("ghi"),
 					},
 				},
 			},
@@ -576,7 +576,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 		},
 		{
 			description: "clearing an out of bounds line is a noop",
-			initLines: []output.Line{},
+			initLines:   []output.Line{},
 			clearCalls: []clearCall{
 				{
 					pos: action.Pos{Line: 0, Col: 0},
@@ -586,7 +586,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 		},
 		{
 			description: "clearing a negative line is a noop",
-			initLines: []output.Line{},
+			initLines:   []output.Line{},
 			clearCalls: []clearCall{
 				{
 					pos: action.Pos{Line: -1, Col: 0},
@@ -599,13 +599,13 @@ func TestInMemory_ClearRight(t *testing.T) {
 			initLines: []output.Line{
 				{
 					{
-						Data: []byte("abc"),
+						Data: output.Text("abc"),
 					},
 					{
-						Data: []byte("def"),
+						Data: output.Text("def"),
 					},
 					{
-						Data: []byte("ghi"),
+						Data: output.Text("ghi"),
 					},
 				},
 			},
@@ -630,4 +630,23 @@ func TestInMemory_ClearRight(t *testing.T) {
 			g.Expect(o.Lines).To(Equal(tt.lines))
 		})
 	}
+}
+
+func TestText_MarshalJSON(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	text := output.Text("hello world\x1b")
+	marshalled, err := text.MarshalJSON()
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(marshalled).To(Equal([]byte(`"hello world\u001b"`)))
+}
+
+func TestText_UnmarshalJSON(t *testing.T) {
+	g := NewGomegaWithT(t)
+
+	marshalled := []byte(`"hello world\u001b"`)
+	var text output.Text
+	err := json.Unmarshal(marshalled, &text)
+	g.Expect(err).ToNot(HaveOccurred())
+	g.Expect(text).To(Equal(output.Text("hello world\x1b")))
 }
