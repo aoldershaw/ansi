@@ -1,30 +1,20 @@
-package output_test
+package ansi_test
 
 import (
 	"encoding/json"
+	"github.com/aoldershaw/ansi"
 	"github.com/aoldershaw/ansi/action"
-	"github.com/aoldershaw/ansi/output"
 	"github.com/aoldershaw/ansi/style"
 	. "github.com/onsi/gomega"
 	"testing"
 )
 
-type printCall struct {
-	data  []byte
-	style style.Style
-	pos   action.Pos
-}
-
-type clearCall struct {
-	pos action.Pos
-}
-
 func TestInMemory_Print(t *testing.T) {
 	for _, tt := range []struct {
 		description string
-		initLines   []output.Line
+		initLines   []ansi.Line
 		printCalls  []printCall
-		lines       []output.Line
+		lines       []ansi.Line
 	}{
 		{
 			description: "printing to a new line creates a new line",
@@ -34,10 +24,10 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 0, Col: 0},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("foo"),
+						Data: ansi.Text("foo"),
 					},
 				},
 			},
@@ -50,11 +40,11 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 1, Col: 0},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{},
 				{
 					{
-						Data: output.Text("foo"),
+						Data: ansi.Text("foo"),
 					},
 				},
 			},
@@ -67,10 +57,10 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: -1, Col: -1},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("foo"),
+						Data: ansi.Text("foo"),
 					},
 				},
 			},
@@ -87,17 +77,17 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 0, Col: 3},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("foobar"),
+						Data: ansi.Text("foobar"),
 					},
 				},
 			},
 		},
 		{
 			description: "printing to an empty existing line works",
-			initLines: []output.Line{
+			initLines: []ansi.Line{
 				{},
 			},
 			printCalls: []printCall{
@@ -110,15 +100,15 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 1, Col: 6},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("   foo"),
+						Data: ansi.Text("   foo"),
 					},
 				},
 				{
 					{
-						Data: output.Text("      bar"),
+						Data: ansi.Text("      bar"),
 					},
 				},
 			},
@@ -135,10 +125,10 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 0, Col: 5},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("foo  bar"),
+						Data: ansi.Text("foo  bar"),
 					},
 				},
 			},
@@ -155,15 +145,15 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 1, Col: 7},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("     foo"),
+						Data: ansi.Text("     foo"),
 					},
 				},
 				{
 					{
-						Data: output.Text("       bar"),
+						Data: ansi.Text("       bar"),
 					},
 				},
 			},
@@ -180,10 +170,10 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 0, Col: 1},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("fbar"),
+						Data: ansi.Text("fbar"),
 					},
 				},
 			},
@@ -200,10 +190,10 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  action.Pos{Line: 0, Col: 1},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("fbaro"),
+						Data: ansi.Text("fbaro"),
 					},
 				},
 			},
@@ -222,7 +212,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: style.Style{Bold: true},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("foo "),
@@ -254,7 +244,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: style.Style{},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("baz"),
@@ -281,7 +271,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: style.Style{Bold: true},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("a"),
@@ -312,7 +302,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: style.Style{Bold: true},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("ABC"),
@@ -345,7 +335,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: style.Style{Bold: true},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("a"),
@@ -390,7 +380,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: style.Style{Bold: true},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("ab"),
@@ -431,7 +421,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: style.Style{Bold: true},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("ab"),
@@ -451,7 +441,7 @@ func TestInMemory_Print(t *testing.T) {
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			o := &output.InMemory{Lines: tt.initLines}
+			o := &ansi.InMemory{Lines: tt.initLines}
 
 			for _, pc := range tt.printCalls {
 				o.Print(pc.data, pc.style, pc.pos)
@@ -465,16 +455,16 @@ func TestInMemory_Print(t *testing.T) {
 func TestInMemory_ClearRight(t *testing.T) {
 	for _, tt := range []struct {
 		description string
-		initLines   []output.Line
+		initLines   []ansi.Line
 		clearCalls  []clearCall
-		lines       []output.Line
+		lines       []ansi.Line
 	}{
 		{
 			description: "clears within a chunk",
-			initLines: []output.Line{
+			initLines: []ansi.Line{
 				{
 					{
-						Data: output.Text("abcdefghi"),
+						Data: ansi.Text("abcdefghi"),
 					},
 				},
 			},
@@ -483,26 +473,26 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: action.Pos{Line: 0, Col: 3},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("abc"),
+						Data: ansi.Text("abc"),
 					},
 				},
 			},
 		},
 		{
 			description: "clears multiple chunks",
-			initLines: []output.Line{
+			initLines: []ansi.Line{
 				{
 					{
-						Data: output.Text("abc"),
+						Data: ansi.Text("abc"),
 					},
 					{
-						Data: output.Text("def"),
+						Data: ansi.Text("def"),
 					},
 					{
-						Data: output.Text("ghi"),
+						Data: ansi.Text("ghi"),
 					},
 				},
 			},
@@ -511,26 +501,26 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: action.Pos{Line: 0, Col: 2},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("ab"),
+						Data: ansi.Text("ab"),
 					},
 				},
 			},
 		},
 		{
 			description: "clears from the second chunk on",
-			initLines: []output.Line{
+			initLines: []ansi.Line{
 				{
 					{
-						Data: output.Text("abc"),
+						Data: ansi.Text("abc"),
 					},
 					{
-						Data: output.Text("def"),
+						Data: ansi.Text("def"),
 					},
 					{
-						Data: output.Text("ghi"),
+						Data: ansi.Text("ghi"),
 					},
 				},
 			},
@@ -539,29 +529,29 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: action.Pos{Line: 0, Col: 5},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("abc"),
+						Data: ansi.Text("abc"),
 					},
 					{
-						Data: output.Text("de"),
+						Data: ansi.Text("de"),
 					},
 				},
 			},
 		},
 		{
 			description: "fully clearing a chunk removes it",
-			initLines: []output.Line{
+			initLines: []ansi.Line{
 				{
 					{
-						Data: output.Text("abc"),
+						Data: ansi.Text("abc"),
 					},
 					{
-						Data: output.Text("def"),
+						Data: ansi.Text("def"),
 					},
 					{
-						Data: output.Text("ghi"),
+						Data: ansi.Text("ghi"),
 					},
 				},
 			},
@@ -570,42 +560,42 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: action.Pos{Line: 0, Col: 0},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{},
 			},
 		},
 		{
 			description: "clearing an out of bounds line is a noop",
-			initLines:   []output.Line{},
+			initLines:   []ansi.Line{},
 			clearCalls: []clearCall{
 				{
 					pos: action.Pos{Line: 0, Col: 0},
 				},
 			},
-			lines: []output.Line{},
+			lines: []ansi.Line{},
 		},
 		{
 			description: "clearing a negative line is a noop",
-			initLines:   []output.Line{},
+			initLines:   []ansi.Line{},
 			clearCalls: []clearCall{
 				{
 					pos: action.Pos{Line: -1, Col: 0},
 				},
 			},
-			lines: []output.Line{},
+			lines: []ansi.Line{},
 		},
 		{
 			description: "clearing from a negative column is the same as from 0",
-			initLines: []output.Line{
+			initLines: []ansi.Line{
 				{
 					{
-						Data: output.Text("abc"),
+						Data: ansi.Text("abc"),
 					},
 					{
-						Data: output.Text("def"),
+						Data: ansi.Text("def"),
 					},
 					{
-						Data: output.Text("ghi"),
+						Data: ansi.Text("ghi"),
 					},
 				},
 			},
@@ -614,14 +604,14 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: action.Pos{Line: 0, Col: -1},
 				},
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{},
 			},
 		},
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			o := &output.InMemory{Lines: tt.initLines}
+			o := &ansi.InMemory{Lines: tt.initLines}
 
 			for _, cc := range tt.clearCalls {
 				o.ClearRight(cc.pos)
@@ -635,7 +625,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 func TestText_MarshalJSON(t *testing.T) {
 	g := NewGomegaWithT(t)
 
-	text := output.Text("hello world\x1b")
+	text := ansi.Text("hello world\x1b")
 	marshalled, err := text.MarshalJSON()
 	g.Expect(err).ToNot(HaveOccurred())
 	g.Expect(marshalled).To(Equal([]byte(`"hello world\u001b"`)))
@@ -645,8 +635,8 @@ func TestText_UnmarshalJSON(t *testing.T) {
 	g := NewGomegaWithT(t)
 
 	marshalled := []byte(`"hello world\u001b"`)
-	var text output.Text
+	var text ansi.Text
 	err := json.Unmarshal(marshalled, &text)
 	g.Expect(err).ToNot(HaveOccurred())
-	g.Expect(text).To(Equal(output.Text("hello world\x1b")))
+	g.Expect(text).To(Equal(ansi.Text("hello world\x1b")))
 }

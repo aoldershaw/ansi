@@ -1,4 +1,4 @@
-package output
+package ansi
 
 type interval struct {
 	L int

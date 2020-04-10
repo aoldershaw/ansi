@@ -2,7 +2,6 @@ package ansi
 
 import (
 	"github.com/aoldershaw/ansi/action"
-	"github.com/aoldershaw/ansi/output"
 	"github.com/aoldershaw/ansi/parser"
 	"github.com/aoldershaw/ansi/style"
 )
@@ -43,6 +42,11 @@ const (
 	Cooked
 )
 
+type Output interface {
+	Print(data []byte, style style.Style, pos action.Pos)
+	ClearRight(pos action.Pos)
+}
+
 type State struct {
 	Style          style.Style
 	LineDiscipline LineDiscipline
@@ -52,10 +56,10 @@ type State struct {
 	MaxLine int
 	MaxCol  int
 
-	output output.Output
+	output Output
 }
 
-func New(output output.Output, opts ...LogOption) *Log {
+func New(output Output, opts ...LogOption) *Log {
 	state := &State{
 		MaxLine: defaultLines,
 		MaxCol:  defaultCols,
@@ -145,7 +149,7 @@ func (s *State) Action(act action.Action) {
 			if s.Position.Col == 0 {
 				return
 			}
-			empty := output.Spacer(s.Position.Col)
+			empty := spacer(s.Position.Col)
 			s.output.Print(empty, style.Style{}, startOfLine)
 		case action.EraseToEnd:
 			pos := s.Position

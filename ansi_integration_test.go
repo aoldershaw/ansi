@@ -2,7 +2,6 @@ package ansi_test
 
 import (
 	"github.com/aoldershaw/ansi"
-	"github.com/aoldershaw/ansi/output"
 	"github.com/aoldershaw/ansi/style"
 	. "github.com/onsi/gomega"
 	"testing"
@@ -12,22 +11,22 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 	for _, tt := range []struct {
 		description string
 		events      [][]byte
-		lines       []output.Line
+		lines       []ansi.Line
 	}{
 		{
 			description: "basic test",
 			events: [][]byte{
 				[]byte("hello\nworld"),
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("hello"),
+						Data: ansi.Text("hello"),
 					},
 				},
 				{
 					{
-						Data: output.Text("world"),
+						Data: ansi.Text("world"),
 					},
 				},
 			},
@@ -38,10 +37,10 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 				[]byte("hello \x1b[1mworld\x1b[m\n"),
 				[]byte("\x1b[31mthis is red\x1b[m\n"),
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("hello "),
+						Data: ansi.Text("hello "),
 					},
 					{
 						Data:  []byte("world"),
@@ -62,10 +61,10 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 				[]byte("hello \x1b[1mworld\x1b[m\n"),
 				[]byte("\x1b[31mthis is red\x1b[m\n"),
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("hello "),
+						Data: ansi.Text("hello "),
 					},
 					{
 						Data:  []byte("world"),
@@ -86,14 +85,14 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 				[]byte("\x1b[31mthis is red\x1b"),
 				[]byte("[0m but this is not"),
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("this is red"),
 						Style: style.Style{Foreground: style.Red},
 					},
 					{
-						Data: output.Text(" but this is not"),
+						Data: ansi.Text(" but this is not"),
 					},
 				},
 			},
@@ -104,10 +103,10 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 				[]byte("hello\x1b[3Cworld"),
 				[]byte("\x1b[Ggoodbye"),
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("goodbye world"),
+						Data: ansi.Text("goodbye world"),
 					},
 				},
 			},
@@ -118,10 +117,10 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 				[]byte("\x1b[shello   world"),
 				[]byte("\x1b[ugoodbye"),
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("goodbye world"),
+						Data: ansi.Text("goodbye world"),
 					},
 				},
 			},
@@ -132,10 +131,10 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 				[]byte("this text is very important and will never be removed!\n"),
 				[]byte("\x1b[1A\x1b[2Knevermind"),
 			},
-			lines: []output.Line{
+			lines: []ansi.Line{
 				{
 					{
-						Data: output.Text("nevermind"),
+						Data: ansi.Text("nevermind"),
 					},
 				},
 			},
@@ -144,7 +143,7 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 
-			out := &output.InMemory{}
+			out := &ansi.InMemory{}
 			log := ansi.New(out)
 
 			for _, evt := range tt.events {

@@ -1,4 +1,4 @@
-package output
+package ansi
 
 import (
 	"bytes"
@@ -60,7 +60,7 @@ func (b *InMemory) Print(data []byte, style style.Style, pos action.Pos) {
 		spacerLen := pos.Col
 		if spacerLen > 0 {
 			newData := make([]byte, spacerLen+len(data))
-			copy(newData, Spacer(spacerLen))
+			copy(newData, spacer(spacerLen))
 			copy(newData[spacerLen:], data)
 			data = newData
 		}
@@ -89,7 +89,7 @@ func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) 
 	}
 
 	lastChunk := &line[len(line)-1]
-	lastChunk.Data = append(lastChunk.Data, Spacer(spacerLen)...)
+	lastChunk.Data = append(lastChunk.Data, spacer(spacerLen)...)
 	if lastChunk.Style == style {
 		lastChunk.Data = append(lastChunk.Data, data...)
 		return
@@ -100,7 +100,7 @@ func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) 
 func (b *InMemory) addFirstChunk(data []byte, style style.Style, pos action.Pos) {
 	if pos.Col > 0 {
 		newData := make([]byte, pos.Col+len(data))
-		copy(newData, Spacer(pos.Col))
+		copy(newData, spacer(pos.Col))
 		copy(newData[pos.Col:], data)
 		data = newData
 	}
@@ -222,11 +222,11 @@ func (b *InMemory) ClearRight(pos action.Pos) {
 	}
 }
 
-func Spacer(length int) []byte {
+func spacer(length int) []byte {
 	if length <= 0 {
 		return nil
 	}
-	// Minor optimization: if Spacer is small enough, don't need to perform a heap alloc
+	// Minor optimization: if spacer is small enough, don't need to perform a heap alloc
 	if length <= spacerBytesSize {
 		return spacerPreallocBytes[:length]
 	}
