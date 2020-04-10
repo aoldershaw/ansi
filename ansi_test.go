@@ -376,10 +376,10 @@ func TestAnsi_State(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			spyOutput := &spyOutput{}
-			state := ansi.New(tt.lineDiscipline, spyOutput)
+			a := ansi.New(spyOutput, ansi.WithLineDiscipline(tt.lineDiscipline))
 
 			for _, act := range tt.actions {
-				state.Action(act)
+				a.State.Action(act)
 			}
 
 			g.Expect(spyOutput.printCalls).To(Equal(tt.printCalls))

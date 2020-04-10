@@ -3,12 +3,44 @@ package ansi
 import (
 	"github.com/aoldershaw/ansi/action"
 	"github.com/aoldershaw/ansi/output"
+	"github.com/aoldershaw/ansi/parser"
 	"github.com/aoldershaw/ansi/style"
 )
 
 const (
 	defaultLines = 48
 	defaultCols  = 80
+)
+
+type LogOption func(*Log)
+
+func WithLineDiscipline(d LineDiscipline) LogOption {
+	return func(l *Log) {
+		l.State.LineDiscipline = d
+	}
+}
+
+func WithInitialScreenSize(lines, cols int) LogOption {
+	return func(l *Log) {
+		if lines > 0 {
+			l.State.MaxLine = lines
+		}
+		if cols > 0 {
+			l.State.MaxCol = cols
+		}
+	}
+}
+
+type Log struct {
+	*parser.Parser
+	State *State
+}
+
+type LineDiscipline int
+
+const (
+	Raw LineDiscipline = iota
+	Cooked
 )
 
 type State struct {
@@ -23,25 +55,24 @@ type State struct {
 	output output.Output
 }
 
-func New(lineDiscipline LineDiscipline, output output.Output) *State {
-	return &State{
-		LineDiscipline: lineDiscipline,
-		Style:          style.Style{},
-
-		// TODO: functional options for this (and LineDiscipline)
+func New(output output.Output, opts ...LogOption) *Log {
+	state := &State{
 		MaxLine: defaultLines,
 		MaxCol:  defaultCols,
 
+		LineDiscipline: Cooked,
+
 		output: output,
 	}
+	log := &Log{
+		Parser: parser.New(state),
+		State:  state,
+	}
+	for _, opt := range opts {
+		opt(log)
+	}
+	return log
 }
-
-type LineDiscipline int
-
-const (
-	Raw LineDiscipline = iota
-	Cooked
-)
 
 func (s *State) Action(act action.Action) {
 	switch v := act.(type) {
@@ -147,5 +178,5 @@ func (s *State) moveCursorTo(l, c int) {
 }
 
 func (s *State) moveCursor(dl, dc int) {
-	s.moveCursorTo(s.Position.Line + dl, s.Position.Col + dc)
+	s.moveCursorTo(s.Position.Line+dl, s.Position.Col+dc)
 }

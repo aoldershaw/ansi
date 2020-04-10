@@ -3,7 +3,6 @@ package ansi_test
 import (
 	"github.com/aoldershaw/ansi"
 	"github.com/aoldershaw/ansi/output"
-	"github.com/aoldershaw/ansi/parser"
 	"github.com/aoldershaw/ansi/style"
 	. "github.com/onsi/gomega"
 	"testing"
@@ -146,11 +145,10 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			g := NewGomegaWithT(t)
 
 			out := &output.InMemory{}
-			state := ansi.New(ansi.Cooked, out)
-			parse := parser.New(state)
+			log := ansi.New(out)
 
 			for _, evt := range tt.events {
-				parse.Parse(evt)
+				log.Parse(evt)
 			}
 
 			g.Expect(out.Lines).To(Equal(tt.lines))

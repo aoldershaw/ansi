@@ -2,17 +2,10 @@
 
 package ansi
 
-import (
-	"github.com/aoldershaw/ansi/output"
-	"github.com/aoldershaw/ansi/parser"
-)
+import "github.com/aoldershaw/ansi/output"
 
 func Fuzz(data []byte) int {
-	out := &output.InMemory{}
-	state := New(Cooked, out)
-	parse := parser.New(state)
-
-	parse.Parse(data)
-
+	a := New(&output.InMemory{})
+	a.Parse(data)
 	return 0
 }
