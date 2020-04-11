@@ -56,30 +56,6 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			},
 		},
 		{
-			description: "styling",
-			events: [][]byte{
-				[]byte("hello \x1b[1mworld\x1b[m\n"),
-				[]byte("\x1b[31mthis is red\x1b[m\n"),
-			},
-			lines: []ansi.Line{
-				{
-					{
-						Data: ansi.Text("hello "),
-					},
-					{
-						Data:  []byte("world"),
-						Style: style.Style{Bold: true},
-					},
-				},
-				{
-					{
-						Data:  []byte("this is red"),
-						Style: style.Style{Foreground: style.Red},
-					},
-				},
-			},
-		},
-		{
 			description: "control sequences split over multiple events",
 			events: [][]byte{
 				[]byte("\x1b[31mthis is red\x1b"),
