@@ -90,8 +90,7 @@ callback := action.HandlerFunc(func(a action.Action) {
 p, actions, done := parser.NewWithChan()
 defer done()
 go func() {
-    for {
-        a := <-actions
+    for a := range actions {
         switch v := a.(type) {
             ...
         }
