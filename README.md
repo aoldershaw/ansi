@@ -79,14 +79,6 @@ If you prefer to work with channels instead of callbacks, you
 can use the convenience constructor `parser.NewWithChan`
 
 ```go
-
-callback := action.HandlerFunc(func(a action.Action) {
-    switch v := action.(type) {
-        case action.Print:
-            ...
-        ...
-    }
-})
 p, actions, done := parser.NewWithChan()
 defer done()
 go func() {
