@@ -1,6 +1,8 @@
 package ansi_test
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/aoldershaw/ansi"
 	"github.com/aoldershaw/ansi/style"
 	. "github.com/onsi/gomega"
@@ -129,4 +131,16 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			g.Expect(out.Lines).To(Equal(tt.lines))
 		})
 	}
+}
+
+func Example() {
+	output := &ansi.InMemory{}
+	interpreter := ansi.New(output)
+
+	interpreter.Parse([]byte("\x1b[1mbold\x1b[m text"))
+	interpreter.Parse([]byte("\nline 2"))
+
+	linesJSON, _ := json.MarshalIndent(output.Lines, "", "  ")
+	fmt.Println(string(linesJSON))
+	// Output: [[{"data":"bold","style":{"bold":true}},{"data":" text","style":{}}],[{"data":"line 2","style":{}}]]
 }
