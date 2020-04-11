@@ -8,7 +8,7 @@ The intended use-case is for processing streams of log output for
 
 ```go
 import (
-    github.com/aoldershaw/ansi
+    "github.com/aoldershaw/ansi"
 )
 ...
 
@@ -58,8 +58,8 @@ The parser can also be used independently of the interpreter.
 
 ```go
 import (
-    github.com/aoldershaw/ansi/action
-    github.com/aoldershaw/ansi/parser
+    "github.com/aoldershaw/ansi/action"
+    "github.com/aoldershaw/ansi/parser"
 )
 ...
 
