@@ -2,7 +2,7 @@
 
 ansi is a pluggable solution for parsing and interpreting streams of ANSI text.
 The intended use-case is for processing streams of log output for 
-[Concourse](github.com/concourse/concourse).
+[Concourse](https://github.com/concourse/concourse).
 
 ## Usage
 
