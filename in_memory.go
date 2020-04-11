@@ -35,7 +35,7 @@ func (t *Text) UnmarshalJSON(data []byte) error {
 
 type Chunk struct {
 	Data  Text        `json:"data"`
-	Style style.Style `json:"style,omitempty"`
+	Style style.Style `json:"style"`
 }
 
 type Line = []Chunk
