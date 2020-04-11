@@ -152,7 +152,7 @@ func parseControlSequence(p *Parser) stateFn {
 	p.currNum = maybeInt{}
 
 	p.backup()
-	return parseControlSequenceMode(p)
+	return parseControlSequenceMode
 }
 
 func parseControlSequenceMode(p *Parser) stateFn {
