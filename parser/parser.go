@@ -62,6 +62,13 @@ func (p *Parser) Parse(input []byte) {
 	}
 }
 
+func (p *Parser) print() {
+	data := p.input[p.start:p.pos]
+	clone := make([]byte, len(data))
+	copy(clone, data)
+	p.emit(action.Print(clone))
+}
+
 func (p *Parser) emit(action action.Action) {
 	p.handler.Action(action)
 	p.start = p.pos
@@ -96,13 +103,13 @@ func parseBytes(p *Parser) stateFn {
 		switch c := p.peek(); c {
 		case escapeCode:
 			if p.pos > p.start {
-				p.emit(action.Print(p.input[p.start:p.pos]))
+				p.print()
 			}
 			p.next()
 			return parseEscapeSequence
 		case '\n', '\r':
 			if p.pos > p.start {
-				p.emit(action.Print(p.input[p.start:p.pos]))
+				p.print()
 			}
 			p.next()
 			if c == '\n' {
@@ -117,7 +124,7 @@ func parseBytes(p *Parser) stateFn {
 		}
 	}
 	if p.pos > p.start {
-		p.emit(action.Print(p.input[p.start:p.pos]))
+		p.print()
 	}
 	return parseBytes
 }

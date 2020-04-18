@@ -124,11 +124,18 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			out := &ansi.InMemory{}
 			log := ansi.New(out)
 
+			initialEvents := make([][]byte, len(tt.events))
+			for i, evt := range tt.events {
+				initialEvents[i] = make([]byte, len(evt))
+				copy(initialEvents[i], evt)
+			}
+
 			for _, evt := range tt.events {
 				log.Parse(evt)
 			}
 
 			g.Expect(out.Lines).To(Equal(tt.lines))
+			g.Expect(tt.events).To(Equal(initialEvents), "modified input bytes")
 		})
 	}
 }
