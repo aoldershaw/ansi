@@ -1,6 +1,4 @@
-package action
-
-import "github.com/aoldershaw/ansi/style"
+package ansi
 
 // https://bluesock.org/~willkg/dev/ansi.html
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_sequences
@@ -11,8 +9,8 @@ type Action interface {
 
 type Print []byte
 type Reset struct{}
-type SetForeground style.Color
-type SetBackground style.Color
+type SetForeground Color
+type SetBackground Color
 type SetBold bool
 type SetFaint bool
 type SetItalic bool

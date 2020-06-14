@@ -1,8 +1,4 @@
-package parser
-
-import (
-	"github.com/aoldershaw/ansi/action"
-)
+package ansi
 
 const escapeCode = '\x1b'
 
@@ -21,7 +17,7 @@ func (m maybeInt) withDefault(i int) int {
 }
 
 type Parser struct {
-	handler action.Handler
+	handler Handler
 
 	start int
 	pos   int
@@ -33,7 +29,7 @@ type Parser struct {
 	state stateFn
 }
 
-func New(handler action.Handler) *Parser {
+func NewParser(handler Handler) *Parser {
 	return &Parser{
 		handler: handler,
 		// In most cases, this pre-allocation will be plenty
@@ -42,12 +38,12 @@ func New(handler action.Handler) *Parser {
 	}
 }
 
-func NewWithChan() (*Parser, <-chan action.Action, func()) {
-	c := make(chan action.Action)
+func NewParserWithChan() (*Parser, <-chan Action, func()) {
+	c := make(chan Action)
 	done := func() {
 		close(c)
 	}
-	return New(action.HandlerFunc(func(act action.Action) {
+	return NewParser(HandlerFunc(func(act Action) {
 		c <- act
 	})), c, done
 }
@@ -66,10 +62,10 @@ func (p *Parser) print() {
 	data := p.input[p.start:p.pos]
 	clone := make([]byte, len(data))
 	copy(clone, data)
-	p.emit(action.Print(clone))
+	p.emit(Print(clone))
 }
 
-func (p *Parser) emit(action action.Action) {
+func (p *Parser) emit(action Action) {
 	p.handler.Action(action)
 	p.start = p.pos
 }
@@ -113,9 +109,9 @@ func parseBytes(p *Parser) stateFn {
 			}
 			p.next()
 			if c == '\n' {
-				p.emit(action.Linebreak{})
+				p.emit(Linebreak{})
 			} else {
-				p.emit(action.CarriageReturn{})
+				p.emit(CarriageReturn{})
 			}
 			return parseBytes
 		}
@@ -171,16 +167,16 @@ func parseControlSequenceMode(p *Parser) stateFn {
 		return parseControlSequence
 	}
 	var (
-		actions []action.Action
+		actions []Action
 		ok      bool
 	)
 	if mode == 'm' && len(p.nums) > 2 {
 		// TODO: avoid doing dynamic allocation somehow...maybe set a cap on length?
 		// 16 would realistically be good for all "normal" cases
 		// May not be "correct" but it will likely work fine
-		actions = make([]action.Action, len(p.nums))
+		actions = make([]Action, len(p.nums))
 	} else {
-		var actionsArr [2]action.Action
+		var actionsArr [2]Action
 		actions = actionsArr[:]
 	}
 	var num maybeInt
@@ -202,24 +198,24 @@ func parseControlSequenceMode(p *Parser) stateFn {
 			ok = ok || curOk
 		}
 	case 'A':
-		actions[0], ok = action.CursorUp(num.withDefault(1)), true
+		actions[0], ok = CursorUp(num.withDefault(1)), true
 	case 'B':
-		actions[0], ok = action.CursorDown(num.withDefault(1)), true
+		actions[0], ok = CursorDown(num.withDefault(1)), true
 	case 'C':
-		actions[0], ok = action.CursorForward(num.withDefault(1)), true
+		actions[0], ok = CursorForward(num.withDefault(1)), true
 	case 'D':
-		actions[0], ok = action.CursorBack(num.withDefault(1)), true
+		actions[0], ok = CursorBack(num.withDefault(1)), true
 	case 'E':
-		actions[0], ok = action.CursorDown(num.withDefault(1)), true
-		actions[1] = action.CursorColumn(0)
+		actions[0], ok = CursorDown(num.withDefault(1)), true
+		actions[1] = CursorColumn(0)
 	case 'F':
-		actions[0], ok = action.CursorUp(num.withDefault(1)), true
-		actions[1] = action.CursorColumn(0)
+		actions[0], ok = CursorUp(num.withDefault(1)), true
+		actions[1] = CursorColumn(0)
 	case 'G':
 		// This *should* be 1 according to https://en.wikipedia.org/wiki/ANSI_escape_code#Terminal_output_sequences
 		// but to match vito/elm-ansi, use 0
 		// Note that 0 and 1 seem to behave in the same way
-		actions[0], ok = action.CursorColumn(num.withDefault(0)), true
+		actions[0], ok = CursorColumn(num.withDefault(0)), true
 	case 'H', 'f':
 		var (
 			firstNum  maybeInt
@@ -231,18 +227,18 @@ func parseControlSequenceMode(p *Parser) stateFn {
 		if len(p.nums) > 1 {
 			secondNum = p.nums[1]
 		}
-		actions[0], ok = action.CursorPosition(action.Pos{
+		actions[0], ok = CursorPosition(Pos{
 			Line: firstNum.withDefault(1),
 			Col:  secondNum.withDefault(1),
 		}), true
 	case 's':
-		actions[0], ok = action.SaveCursorPosition{}, true
+		actions[0], ok = SaveCursorPosition{}, true
 	case 'u':
-		actions[0], ok = action.RestoreCursorPosition{}, true
+		actions[0], ok = RestoreCursorPosition{}, true
 	case 'J':
-		actions[0], ok = action.EraseDisplay(num.withDefault(0)), true
+		actions[0], ok = EraseDisplay(num.withDefault(0)), true
 	case 'K':
-		actions[0], ok = action.EraseLine(num.withDefault(0)), true
+		actions[0], ok = EraseLine(num.withDefault(0)), true
 	case ';':
 		return parseControlSequence
 	default:

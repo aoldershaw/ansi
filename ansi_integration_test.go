@@ -3,10 +3,10 @@ package ansi_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aoldershaw/ansi"
-	"github.com/aoldershaw/ansi/style"
-	. "github.com/onsi/gomega"
 	"testing"
+
+	"github.com/aoldershaw/ansi"
+	. "github.com/onsi/gomega"
 )
 
 func TestAnsi_Integration_InMemory(t *testing.T) {
@@ -46,13 +46,13 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 					},
 					{
 						Data:  []byte("world"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 				},
 				{
 					{
 						Data:  []byte("this is red"),
-						Style: style.Style{Foreground: style.Red},
+						Style: ansi.Style{Foreground: ansi.Red},
 					},
 				},
 			},
@@ -67,7 +67,7 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 				{
 					{
 						Data:  []byte("this is red"),
-						Style: style.Style{Foreground: style.Red},
+						Style: ansi.Style{Foreground: ansi.Red},
 					},
 					{
 						Data: ansi.Text(" but this is not"),

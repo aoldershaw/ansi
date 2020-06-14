@@ -1,4 +1,4 @@
-package style
+package ansi
 
 type Style struct {
 	Foreground Color `json:"fg,omitempty"`

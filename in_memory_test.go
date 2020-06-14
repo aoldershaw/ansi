@@ -2,11 +2,10 @@ package ansi_test
 
 import (
 	"encoding/json"
-	"github.com/aoldershaw/ansi"
-	"github.com/aoldershaw/ansi/action"
-	"github.com/aoldershaw/ansi/style"
-	. "github.com/onsi/gomega"
 	"testing"
+
+	"github.com/aoldershaw/ansi"
+	. "github.com/onsi/gomega"
 )
 
 func TestInMemory_Print(t *testing.T) {
@@ -21,7 +20,7 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 0, Col: 0},
+					pos:  ansi.Pos{Line: 0, Col: 0},
 				},
 			},
 			lines: []ansi.Line{
@@ -37,7 +36,7 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 1, Col: 0},
+					pos:  ansi.Pos{Line: 1, Col: 0},
 				},
 			},
 			lines: []ansi.Line{
@@ -54,7 +53,7 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: -1, Col: -1},
+					pos:  ansi.Pos{Line: -1, Col: -1},
 				},
 			},
 			lines: []ansi.Line{
@@ -70,11 +69,11 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 0, Col: 0},
+					pos:  ansi.Pos{Line: 0, Col: 0},
 				},
 				{
 					data: []byte("bar"),
-					pos:  action.Pos{Line: 0, Col: 3},
+					pos:  ansi.Pos{Line: 0, Col: 3},
 				},
 			},
 			lines: []ansi.Line{
@@ -93,11 +92,11 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 0, Col: 3},
+					pos:  ansi.Pos{Line: 0, Col: 3},
 				},
 				{
 					data: []byte("bar"),
-					pos:  action.Pos{Line: 1, Col: 6},
+					pos:  ansi.Pos{Line: 1, Col: 6},
 				},
 			},
 			lines: []ansi.Line{
@@ -118,11 +117,11 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 0, Col: 0},
+					pos:  ansi.Pos{Line: 0, Col: 0},
 				},
 				{
 					data: []byte("bar"),
-					pos:  action.Pos{Line: 0, Col: 5},
+					pos:  ansi.Pos{Line: 0, Col: 5},
 				},
 			},
 			lines: []ansi.Line{
@@ -138,11 +137,11 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 0, Col: 5},
+					pos:  ansi.Pos{Line: 0, Col: 5},
 				},
 				{
 					data: []byte("bar"),
-					pos:  action.Pos{Line: 1, Col: 7},
+					pos:  ansi.Pos{Line: 1, Col: 7},
 				},
 			},
 			lines: []ansi.Line{
@@ -163,11 +162,11 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foo"),
-					pos:  action.Pos{Line: 0, Col: 0},
+					pos:  ansi.Pos{Line: 0, Col: 0},
 				},
 				{
 					data: []byte("bar"),
-					pos:  action.Pos{Line: 0, Col: 1},
+					pos:  ansi.Pos{Line: 0, Col: 1},
 				},
 			},
 			lines: []ansi.Line{
@@ -183,11 +182,11 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data: []byte("foooo"),
-					pos:  action.Pos{Line: 0, Col: 0},
+					pos:  ansi.Pos{Line: 0, Col: 0},
 				},
 				{
 					data: []byte("bar"),
-					pos:  action.Pos{Line: 0, Col: 1},
+					pos:  ansi.Pos{Line: 0, Col: 1},
 				},
 			},
 			lines: []ansi.Line{
@@ -203,24 +202,24 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("foo"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 				{
 					data:  []byte("bar"),
-					pos:   action.Pos{Line: 0, Col: 4},
-					style: style.Style{Bold: true},
+					pos:   ansi.Pos{Line: 0, Col: 4},
+					style: ansi.Style{Bold: true},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("foo "),
-						Style: style.Style{},
+						Style: ansi.Style{},
 					},
 					{
 						Data:  []byte("bar"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 				},
 			},
@@ -230,29 +229,29 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("foo"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 				{
 					data:  []byte("bar"),
-					pos:   action.Pos{Line: 0, Col: 3},
-					style: style.Style{Bold: true},
+					pos:   ansi.Pos{Line: 0, Col: 3},
+					style: ansi.Style{Bold: true},
 				},
 				{
 					data:  []byte("baz"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("baz"),
-						Style: style.Style{},
+						Style: ansi.Style{},
 					},
 					{
 						Data:  []byte("bar"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 				},
 			},
@@ -262,28 +261,28 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("abc"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 				{
 					data:  []byte("B"),
-					pos:   action.Pos{Line: 0, Col: 1},
-					style: style.Style{Bold: true},
+					pos:   ansi.Pos{Line: 0, Col: 1},
+					style: ansi.Style{Bold: true},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("a"),
-						Style: style.Style{},
+						Style: ansi.Style{},
 					},
 					{
 						Data:  []byte("B"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 					{
 						Data:  []byte("c"),
-						Style: style.Style{},
+						Style: ansi.Style{},
 					},
 				},
 			},
@@ -293,20 +292,20 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("abc"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 				{
 					data:  []byte("ABC"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{Bold: true},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{Bold: true},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("ABC"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 				},
 			},
@@ -316,42 +315,42 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("abc"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 				{
 					data:  []byte("def"),
-					pos:   action.Pos{Line: 0, Col: 3},
-					style: style.Style{Italic: true},
+					pos:   ansi.Pos{Line: 0, Col: 3},
+					style: ansi.Style{Italic: true},
 				},
 				{
 					data:  []byte("ghi"),
-					pos:   action.Pos{Line: 0, Col: 6},
-					style: style.Style{Underline: true},
+					pos:   ansi.Pos{Line: 0, Col: 6},
+					style: ansi.Style{Underline: true},
 				},
 				{
 					data:  []byte("BCD"),
-					pos:   action.Pos{Line: 0, Col: 1},
-					style: style.Style{Bold: true},
+					pos:   ansi.Pos{Line: 0, Col: 1},
+					style: ansi.Style{Bold: true},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("a"),
-						Style: style.Style{},
+						Style: ansi.Style{},
 					},
 					{
 						Data:  []byte("BCD"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 					{
 						Data:  []byte("ef"),
-						Style: style.Style{Italic: true},
+						Style: ansi.Style{Italic: true},
 					},
 					{
 						Data:  []byte("ghi"),
-						Style: style.Style{Underline: true},
+						Style: ansi.Style{Underline: true},
 					},
 				},
 			},
@@ -361,38 +360,38 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("abc"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 				{
 					data:  []byte("def"),
-					pos:   action.Pos{Line: 0, Col: 3},
-					style: style.Style{Italic: true},
+					pos:   ansi.Pos{Line: 0, Col: 3},
+					style: ansi.Style{Italic: true},
 				},
 				{
 					data:  []byte("ghi"),
-					pos:   action.Pos{Line: 0, Col: 6},
-					style: style.Style{Underline: true},
+					pos:   ansi.Pos{Line: 0, Col: 6},
+					style: ansi.Style{Underline: true},
 				},
 				{
 					data:  []byte("CDEFG"),
-					pos:   action.Pos{Line: 0, Col: 2},
-					style: style.Style{Bold: true},
+					pos:   ansi.Pos{Line: 0, Col: 2},
+					style: ansi.Style{Bold: true},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("ab"),
-						Style: style.Style{},
+						Style: ansi.Style{},
 					},
 					{
 						Data:  []byte("CDEFG"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 					{
 						Data:  []byte("hi"),
-						Style: style.Style{Underline: true},
+						Style: ansi.Style{Underline: true},
 					},
 				},
 			},
@@ -402,38 +401,38 @@ func TestInMemory_Print(t *testing.T) {
 			printCalls: []printCall{
 				{
 					data:  []byte("abc"),
-					pos:   action.Pos{Line: 0, Col: 0},
-					style: style.Style{},
+					pos:   ansi.Pos{Line: 0, Col: 0},
+					style: ansi.Style{},
 				},
 				{
 					data:  []byte("def"),
-					pos:   action.Pos{Line: 0, Col: 3},
-					style: style.Style{Italic: true},
+					pos:   ansi.Pos{Line: 0, Col: 3},
+					style: ansi.Style{Italic: true},
 				},
 				{
 					data:  []byte("ghi"),
-					pos:   action.Pos{Line: 0, Col: 6},
-					style: style.Style{Underline: true},
+					pos:   ansi.Pos{Line: 0, Col: 6},
+					style: ansi.Style{Underline: true},
 				},
 				{
 					data:  []byte("CDEF"),
-					pos:   action.Pos{Line: 0, Col: 2},
-					style: style.Style{Bold: true},
+					pos:   ansi.Pos{Line: 0, Col: 2},
+					style: ansi.Style{Bold: true},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("ab"),
-						Style: style.Style{},
+						Style: ansi.Style{},
 					},
 					{
 						Data:  []byte("CDEF"),
-						Style: style.Style{Bold: true},
+						Style: ansi.Style{Bold: true},
 					},
 					{
 						Data:  []byte("ghi"),
-						Style: style.Style{Underline: true},
+						Style: ansi.Style{Underline: true},
 					},
 				},
 			},
@@ -470,7 +469,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			},
 			clearCalls: []clearCall{
 				{
-					pos: action.Pos{Line: 0, Col: 3},
+					pos: ansi.Pos{Line: 0, Col: 3},
 				},
 			},
 			lines: []ansi.Line{
@@ -498,7 +497,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			},
 			clearCalls: []clearCall{
 				{
-					pos: action.Pos{Line: 0, Col: 2},
+					pos: ansi.Pos{Line: 0, Col: 2},
 				},
 			},
 			lines: []ansi.Line{
@@ -526,7 +525,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			},
 			clearCalls: []clearCall{
 				{
-					pos: action.Pos{Line: 0, Col: 5},
+					pos: ansi.Pos{Line: 0, Col: 5},
 				},
 			},
 			lines: []ansi.Line{
@@ -557,7 +556,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			},
 			clearCalls: []clearCall{
 				{
-					pos: action.Pos{Line: 0, Col: 0},
+					pos: ansi.Pos{Line: 0, Col: 0},
 				},
 			},
 			lines: []ansi.Line{
@@ -569,7 +568,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			initLines:   []ansi.Line{},
 			clearCalls: []clearCall{
 				{
-					pos: action.Pos{Line: 0, Col: 0},
+					pos: ansi.Pos{Line: 0, Col: 0},
 				},
 			},
 			lines: []ansi.Line{},
@@ -579,7 +578,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			initLines:   []ansi.Line{},
 			clearCalls: []clearCall{
 				{
-					pos: action.Pos{Line: -1, Col: 0},
+					pos: ansi.Pos{Line: -1, Col: 0},
 				},
 			},
 			lines: []ansi.Line{},
@@ -601,7 +600,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 			},
 			clearCalls: []clearCall{
 				{
-					pos: action.Pos{Line: 0, Col: -1},
+					pos: ansi.Pos{Line: 0, Col: -1},
 				},
 			},
 			lines: []ansi.Line{

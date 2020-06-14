@@ -3,8 +3,6 @@ package ansi
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/aoldershaw/ansi/action"
-	"github.com/aoldershaw/ansi/style"
 )
 
 // Used as an optimization to avoid heap allocations
@@ -34,8 +32,8 @@ func (t *Text) UnmarshalJSON(data []byte) error {
 }
 
 type Chunk struct {
-	Data  Text        `json:"data"`
-	Style style.Style `json:"style"`
+	Data  Text  `json:"data"`
+	Style Style `json:"style"`
 }
 
 type Line = []Chunk
@@ -44,7 +42,7 @@ type InMemory struct {
 	Lines []Line
 }
 
-func (b *InMemory) Print(data []byte, style style.Style, pos action.Pos) {
+func (b *InMemory) Print(data []byte, style Style, pos Pos) {
 	if pos.Line < 0 {
 		pos.Line = 0
 	}
@@ -77,7 +75,7 @@ func (b *InMemory) Print(data []byte, style style.Style, pos action.Pos) {
 	}
 }
 
-func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) {
+func (b *InMemory) appendToLine(data []byte, style Style, pos Pos) {
 	line := b.Lines[pos.Line]
 
 	lineLen := b.lineLength(pos.Line)
@@ -97,7 +95,7 @@ func (b *InMemory) appendToLine(data []byte, style style.Style, pos action.Pos) 
 	b.Lines[pos.Line] = append(line, Chunk{Data: data, Style: style})
 }
 
-func (b *InMemory) addFirstChunk(data []byte, style style.Style, pos action.Pos) {
+func (b *InMemory) addFirstChunk(data []byte, style Style, pos Pos) {
 	if pos.Col > 0 {
 		newData := make([]byte, pos.Col+len(data))
 		copy(newData, spacer(pos.Col))
@@ -107,7 +105,7 @@ func (b *InMemory) addFirstChunk(data []byte, style style.Style, pos action.Pos)
 	b.Lines[pos.Line] = Line{{Data: data, Style: style}}
 }
 
-func (b *InMemory) insertWithinLine(data []byte, style style.Style, pos action.Pos) {
+func (b *InMemory) insertWithinLine(data []byte, style Style, pos Pos) {
 	line := b.Lines[pos.Line]
 	chunkStart := 0
 	for i := 0; i < len(line); i++ {
@@ -147,7 +145,7 @@ func (b *InMemory) insertWithinLine(data []byte, style style.Style, pos action.P
 	}
 }
 
-func (b InMemory) insertInsideChunk(data []byte, style style.Style, lineNum, relCol int, chunkIndex int) {
+func (b InMemory) insertInsideChunk(data []byte, style Style, lineNum, relCol int, chunkIndex int) {
 	chunk := b.Lines[lineNum][chunkIndex]
 	if chunk.Style == style {
 		copy(b.Lines[lineNum][chunkIndex].Data[relCol:], data)
@@ -196,7 +194,7 @@ func (b InMemory) lineLength(i int) int {
 	return l
 }
 
-func (b *InMemory) ClearRight(pos action.Pos) {
+func (b *InMemory) ClearRight(pos Pos) {
 	if pos.Line < 0 || pos.Line >= len(b.Lines) {
 		return
 	}

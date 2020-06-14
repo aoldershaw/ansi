@@ -1,4 +1,4 @@
-package style
+package ansi
 
 import "encoding/json"
 

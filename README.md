@@ -58,28 +58,27 @@ The parser can also be used independently of the interpreter.
 
 ```go
 import (
-    "github.com/aoldershaw/ansi/action"
-    "github.com/aoldershaw/ansi/parser"
+    "github.com/aoldershaw/ansi"
 )
 ...
 
-callback := action.HandlerFunc(func(a action.Action) {
+callback := ansi.HandlerFunc(func(a ansi.Action) {
     switch v := a.(type) {
-        case action.Print:
+        case ansi.Print:
             ...
         ...
     }
 })
-p := parser.New()
+parser := ansi.NewParser(callback)
 
-p.Parse([]byte("some bytes"))
+parser.Parse([]byte("some bytes"))
 ```
 
 If you prefer to work with channels instead of callbacks, you
 can use the convenience constructor `parser.NewWithChan`
 
 ```go
-p, actions, done := parser.NewWithChan()
+p, actions, done := ansi.NewParserWithChan()
 defer done()
 go func() {
     for a := range actions {

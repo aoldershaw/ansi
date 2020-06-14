@@ -1,4 +1,4 @@
-package action
+package ansi
 
 type Handler interface {
 	Action(Action)

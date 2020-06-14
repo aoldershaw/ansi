@@ -1,14 +1,13 @@
-package action
+package ansi
 
 import (
-	"github.com/aoldershaw/ansi/style"
 	"strconv"
 )
 
 func (a Print) ActionString() string         { return "Print(" + string(a) + ")" }
 func (a Reset) ActionString() string         { return "Reset" }
-func (a SetForeground) ActionString() string { return "SetForeground(" + style.Color(a).String() + ")" }
-func (a SetBackground) ActionString() string { return "SetBackground(" + style.Color(a).String() + ")" }
+func (a SetForeground) ActionString() string { return "SetForeground(" + Color(a).String() + ")" }
+func (a SetBackground) ActionString() string { return "SetBackground(" + Color(a).String() + ")" }
 func (a SetBold) ActionString() string       { return "SetBold(" + strconv.FormatBool(bool(a)) + ")" }
 func (a SetFaint) ActionString() string      { return "SetFaint(" + strconv.FormatBool(bool(a)) + ")" }
 func (a SetItalic) ActionString() string     { return "SetItalic(" + strconv.FormatBool(bool(a)) + ")" }

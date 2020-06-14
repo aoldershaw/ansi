@@ -1,11 +1,5 @@
 package ansi
 
-import (
-	"github.com/aoldershaw/ansi/action"
-	"github.com/aoldershaw/ansi/parser"
-	"github.com/aoldershaw/ansi/style"
-)
-
 const (
 	defaultLines = 48
 	defaultCols  = 80
@@ -31,7 +25,7 @@ func WithInitialScreenSize(lines, cols int) LogOption {
 }
 
 type Log struct {
-	*parser.Parser
+	*Parser
 	State *State
 }
 
@@ -43,15 +37,15 @@ const (
 )
 
 type Output interface {
-	Print(data []byte, style style.Style, pos action.Pos)
-	ClearRight(pos action.Pos)
+	Print(data []byte, style Style, pos Pos)
+	ClearRight(pos Pos)
 }
 
 type State struct {
-	Style          style.Style
+	Style          Style
 	LineDiscipline LineDiscipline
-	Position       action.Pos
-	SavedPosition  *action.Pos
+	Position       Pos
+	SavedPosition  *Pos
 
 	MaxLine int
 	MaxCol  int
@@ -69,7 +63,7 @@ func New(output Output, opts ...LogOption) *Log {
 		output: output,
 	}
 	log := &Log{
-		Parser: parser.New(state),
+		Parser: NewParser(state),
 		State:  state,
 	}
 	for _, opt := range opts {
@@ -78,50 +72,50 @@ func New(output Output, opts ...LogOption) *Log {
 	return log
 }
 
-func (s *State) Action(act action.Action) {
+func (s *State) Action(act Action) {
 	switch v := act.(type) {
-	case action.Print:
+	case Print:
 		s.output.Print(v, s.Style, s.Position)
 		endCol := s.Position.Col + len(v)
 		if endCol > s.MaxCol {
 			s.MaxCol = endCol
 		}
 		s.Position.Col = endCol
-	case action.Reset:
-		s.Style = style.Style{}
-	case action.SetForeground:
-		s.Style.Foreground = style.Color(v)
-	case action.SetBackground:
-		s.Style.Background = style.Color(v)
-	case action.SetBold:
+	case Reset:
+		s.Style = Style{}
+	case SetForeground:
+		s.Style.Foreground = Color(v)
+	case SetBackground:
+		s.Style.Background = Color(v)
+	case SetBold:
 		s.Style.Bold = bool(v)
-	case action.SetFaint:
+	case SetFaint:
 		s.Style.Faint = bool(v)
-	case action.SetItalic:
+	case SetItalic:
 		s.Style.Italic = bool(v)
-	case action.SetUnderline:
+	case SetUnderline:
 		s.Style.Underline = bool(v)
-	case action.SetBlink:
+	case SetBlink:
 		s.Style.Blink = bool(v)
-	case action.SetInverted:
+	case SetInverted:
 		s.Style.Inverted = bool(v)
-	case action.SetFraktur:
+	case SetFraktur:
 		s.Style.Fraktur = bool(v)
-	case action.SetFramed:
+	case SetFramed:
 		s.Style.Framed = bool(v)
-	case action.CursorPosition:
+	case CursorPosition:
 		s.moveCursorTo(v.Line, v.Col)
-	case action.CursorUp:
+	case CursorUp:
 		s.moveCursor(-int(v), 0)
-	case action.CursorDown:
+	case CursorDown:
 		s.moveCursor(int(v), 0)
-	case action.CursorForward:
+	case CursorForward:
 		s.moveCursor(0, int(v))
-	case action.CursorBack:
+	case CursorBack:
 		s.moveCursor(0, -int(v))
-	case action.CursorColumn:
+	case CursorColumn:
 		s.moveCursorTo(s.Position.Line, int(v))
-	case action.Linebreak:
+	case Linebreak:
 		switch s.LineDiscipline {
 		case Raw:
 			s.Position.Line++
@@ -132,34 +126,34 @@ func (s *State) Action(act action.Action) {
 		if s.Position.Line > s.MaxLine {
 			s.MaxLine = s.Position.Line
 		}
-	case action.CarriageReturn:
+	case CarriageReturn:
 		s.Position.Col = 0
-	case action.SaveCursorPosition:
+	case SaveCursorPosition:
 		pos := s.Position
 		s.SavedPosition = &pos
-	case action.RestoreCursorPosition:
+	case RestoreCursorPosition:
 		if s.SavedPosition != nil {
 			s.Position = *s.SavedPosition
 		}
-	case action.EraseLine:
+	case EraseLine:
 		startOfLine := s.Position
 		startOfLine.Col = 0
-		switch action.EraseMode(v) {
-		case action.EraseToBeginning:
+		switch EraseMode(v) {
+		case EraseToBeginning:
 			if s.Position.Col == 0 {
 				return
 			}
 			empty := spacer(s.Position.Col)
-			s.output.Print(empty, style.Style{}, startOfLine)
-		case action.EraseToEnd:
+			s.output.Print(empty, Style{}, startOfLine)
+		case EraseToEnd:
 			pos := s.Position
 			pos.Col++
 			s.output.ClearRight(pos)
-		case action.EraseAll:
+		case EraseAll:
 			s.output.ClearRight(startOfLine)
 		}
 
-	case action.EraseDisplay:
+	case EraseDisplay:
 		// unsupported
 	}
 }
