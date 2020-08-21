@@ -1,26 +1,20 @@
 jobs:
-  - name: unit
-    plan:
-      - get: ansi
-        trigger: true
-      - task: unit
-        file: ansi/ci/tasks/unit.yml
-  - name: fuzz
-    plan:
-      - get: ansi
-        trigger: true
-        passed: [unit]
-      - task: fuzzing
-        file: ansi/ci/tasks/fuzzit.yml
-        params:
-          ACTION: fuzzing
-          FUZZIT_API_KEY: ((aidan-fuzzit-apikey))
-
+- name: test
+  plan:
+  - get: ansi
+    trigger: true
+  - task: unit
+    file: ansi/ci/tasks/unit.yml
+  - task: fuzz
+    file: ansi/ci/tasks/fuzzit.yml
+    params:
+      ACTION: fuzzing
+      FUZZIT_API_KEY: ((aidan-fuzzit-apikey))
 
 resources:
-  - name: ansi
-    type: git
-    icon: github-circle
-    source:
-      uri: https://github.com/aoldershaw/ansi.git
-      branch: master
+- name: ansi
+  type: git
+  icon: github-circle
+  source:
+    uri: https://github.com/aoldershaw/ansi.git
+    branch: master
