@@ -5,4 +5,4 @@ set -eux
 export GOPATH="$PWD/gopath"
 
 cd ansi
-go test ./...
+go test ./... -bench=.

@@ -1,8 +1,10 @@
 package ansi_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"testing"
 
 	"github.com/aoldershaw/ansi"
@@ -138,6 +140,66 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			g.Expect(tt.events).To(Equal(initialEvents), "modified input bytes")
 		})
 	}
+}
+
+func benchmark(b *testing.B, numEvents int, numBytesPerEvent int, probOfControlSequence float64) {
+	b.Helper()
+
+	r := rand.New(rand.NewSource(456))
+	events := make([][]byte, numEvents)
+	for i := 0; i < len(events); i++ {
+		events[i] = generateEvent(r, numBytesPerEvent, probOfControlSequence)
+	}
+	b.SetBytes(int64(numEvents * numBytesPerEvent))
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		out := &ansi.InMemory{}
+		log := ansi.New(out)
+
+		for _, evt := range events {
+			log.Parse(evt)
+		}
+	}
+}
+
+func Benchmark_1_4096x80_5(b *testing.B) {
+	benchmark(b, 1, 4096*80, 0.05)
+}
+
+func Benchmark_4096_80_5(b *testing.B) {
+	benchmark(b, 4096, 80, 0.05)
+}
+
+func Benchmark_4096_120_5(b *testing.B) {
+	benchmark(b, 4096, 120, 0.05)
+}
+
+func Benchmark_4096_80_10(b *testing.B) {
+	benchmark(b, 4096, 80, 0.10)
+}
+
+func Benchmark_8192_80_5(b *testing.B) {
+	benchmark(b, 8192, 80, 0.05)
+}
+
+const modes = "mABCDEFGHfsuJK"
+const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\t\n "
+
+func generateEvent(r *rand.Rand, length int, probOfControlSequence float64) []byte {
+	buf := bytes.NewBuffer(make([]byte, 0, length))
+	for i := 0; i < length; i++ {
+		if r.Float64() < probOfControlSequence {
+			mode := modes[r.Int()%len(modes)]
+			n, _ := buf.WriteString(fmt.Sprintf("\x1b[%d%c", r.Int()%40, mode))
+			i += n
+		} else {
+			buf.WriteByte(chars[r.Int()%len(chars)])
+			i++
+		}
+	}
+	return buf.Bytes()
 }
 
 func Example() {
