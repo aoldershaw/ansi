@@ -171,9 +171,6 @@ func parseControlSequenceMode(p *Parser) stateFn {
 		ok      bool
 	)
 	if mode == 'm' && len(p.nums) > 2 {
-		// TODO: avoid doing dynamic allocation somehow...maybe set a cap on length?
-		// 16 would realistically be good for all "normal" cases
-		// May not be "correct" but it will likely work fine
 		actions = make([]Action, len(p.nums))
 	} else {
 		var actionsArr [2]Action
