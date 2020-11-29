@@ -20,14 +20,16 @@ type State struct {
 }
 
 type Output interface {
-	Print(data []byte, style Style, pos Pos)
-	ClearRight(pos Pos)
+	Print(data []byte, style Style, pos Pos) error
+	ClearRight(pos Pos) error
 }
 
-func (s *State) Action(act Action) {
+func (s *State) Action(act Action) error {
 	switch v := act.(type) {
 	case Print:
-		s.output.Print(v, s.Style, s.Position)
+		if err := s.output.Print(v, s.Style, s.Position); err != nil {
+			return err
+		}
 		endCol := s.Position.Col + len(v)
 		if endCol > s.MaxCol {
 			s.MaxCol = endCol
@@ -93,21 +95,27 @@ func (s *State) Action(act Action) {
 		switch EraseMode(v) {
 		case EraseToBeginning:
 			if s.Position.Col == 0 {
-				return
+				return nil
 			}
 			empty := spacer(s.Position.Col)
 			s.output.Print(empty, Style{}, startOfLine)
 		case EraseToEnd:
 			pos := s.Position
 			pos.Col++
-			s.output.ClearRight(pos)
+			if err := s.output.ClearRight(pos); err != nil {
+				return err
+			}
 		case EraseAll:
-			s.output.ClearRight(startOfLine)
+			if err := s.output.ClearRight(startOfLine); err != nil {
+				return err
+			}
 		}
 
 	case EraseDisplay:
 		// unsupported
 	}
+
+	return nil
 }
 
 func (s *State) moveCursorTo(l, c int) {

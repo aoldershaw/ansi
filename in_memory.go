@@ -42,7 +42,7 @@ type InMemory struct {
 	Lines []Line
 }
 
-func (b *InMemory) Print(data []byte, style Style, pos Pos) {
+func (b *InMemory) Print(data []byte, style Style, pos Pos) error {
 	if pos.Line < 0 {
 		pos.Line = 0
 	}
@@ -63,7 +63,7 @@ func (b *InMemory) Print(data []byte, style Style, pos Pos) {
 			data = newData
 		}
 		b.Lines = append(b.Lines, Line{{Data: data, Style: style}})
-		return
+		return nil
 	}
 
 	lineLen := b.lineLength(pos.Line)
@@ -73,6 +73,7 @@ func (b *InMemory) Print(data []byte, style Style, pos Pos) {
 	} else {
 		b.insertWithinLine(data, style, pos)
 	}
+	return nil
 }
 
 func (b *InMemory) appendToLine(data []byte, style Style, pos Pos) {
@@ -194,9 +195,9 @@ func (b InMemory) lineLength(i int) int {
 	return l
 }
 
-func (b *InMemory) ClearRight(pos Pos) {
+func (b *InMemory) ClearRight(pos Pos) error {
 	if pos.Line < 0 || pos.Line >= len(b.Lines) {
-		return
+		return nil
 	}
 	if pos.Col < 0 {
 		pos.Col = 0
@@ -216,8 +217,9 @@ func (b *InMemory) ClearRight(pos Pos) {
 			keepUpToChunk--
 		}
 		b.Lines[pos.Line] = line[:keepUpToChunk+1]
-		return
+		return nil
 	}
+	return nil
 }
 
 func spacer(length int) []byte {

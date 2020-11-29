@@ -23,18 +23,20 @@ type spyOutput struct {
 	clearCalls []clearCall
 }
 
-func (p *spyOutput) Print(data []byte, style ansi.Style, pos ansi.Pos) {
+func (p *spyOutput) Print(data []byte, style ansi.Style, pos ansi.Pos) error {
 	p.printCalls = append(p.printCalls, printCall{
 		data:  data,
 		style: style,
 		pos:   pos,
 	})
+	return nil
 }
 
-func (p *spyOutput) ClearRight(pos ansi.Pos) {
+func (p *spyOutput) ClearRight(pos ansi.Pos) error {
 	p.clearCalls = append(p.clearCalls, clearCall{
 		pos: pos,
 	})
+	return nil
 }
 
 func TestState(t *testing.T) {
