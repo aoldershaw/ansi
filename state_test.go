@@ -37,7 +37,7 @@ func (p *spyOutput) ClearRight(pos ansi.Pos) {
 	})
 }
 
-func TestAnsi_State(t *testing.T) {
+func TestState(t *testing.T) {
 	for _, tt := range []struct {
 		description    string
 		lineDiscipline ansi.LineDiscipline
@@ -375,10 +375,10 @@ func TestAnsi_State(t *testing.T) {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			spyOutput := &spyOutput{}
-			a := ansi.New(spyOutput, ansi.WithLineDiscipline(tt.lineDiscipline))
+			writer := ansi.NewWriter(spyOutput, ansi.WithLineDiscipline(tt.lineDiscipline))
 
 			for _, act := range tt.actions {
-				a.State.Action(act)
+				writer.State.Action(act)
 			}
 
 			g.Expect(spyOutput.printCalls).To(Equal(tt.printCalls))

@@ -13,10 +13,10 @@ import (
 ...
 
 output := &ansi.InMemory{}
-interpreter := ansi.New(output)
+writer := ansi.NewWriter(output)
 
-interpreter.Parse([]byte("\x1b[1mbold\x1b[m not bold"))
-interpreter.Parse([]byte("\nline 2"))
+writer.Write([]byte("\x1b[1mbold\x1b[m not bold"))
+writer.Write([]byte("\nline 2"))
 
 linesJSON, _ := json.MarshalIndent(output.Lines, "", "  ")
 fmt.Println(string(linesJSON))
@@ -62,32 +62,16 @@ import (
 )
 ...
 
-callback := ansi.HandlerFunc(func(a ansi.Action) {
-    switch v := a.(type) {
+parser := ansi.NewParser()
+
+input := []byte("some bytes")
+for _, action := range parser.ParseAll(input) {
+    switch v := action.(type) {
         case ansi.Print:
             ...
         ...
     }
-})
-parser := ansi.NewParser(callback)
-
-parser.Parse([]byte("some bytes"))
-```
-
-If you prefer to work with channels instead of callbacks, you
-can use the convenience constructor `parser.NewWithChan`
-
-```go
-p, actions, done := ansi.NewParserWithChan()
-defer done()
-go func() {
-    for a := range actions {
-        switch v := a.(type) {
-            ...
-        }
-    }
-}()
-p.Parse([]byte("some bytes"))
+}
 ```
 
 ## Installation

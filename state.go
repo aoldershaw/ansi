@@ -1,45 +1,11 @@
 package ansi
 
-const (
-	defaultLines = 48
-	defaultCols  = 80
-)
-
-type LogOption func(*Log)
-
-func WithLineDiscipline(d LineDiscipline) LogOption {
-	return func(l *Log) {
-		l.State.LineDiscipline = d
-	}
-}
-
-func WithInitialScreenSize(lines, cols int) LogOption {
-	return func(l *Log) {
-		if lines > 0 {
-			l.State.MaxLine = lines
-		}
-		if cols > 0 {
-			l.State.MaxCol = cols
-		}
-	}
-}
-
-type Log struct {
-	*Parser
-	State *State
-}
-
 type LineDiscipline int
 
 const (
 	Raw LineDiscipline = iota
 	Cooked
 )
-
-type Output interface {
-	Print(data []byte, style Style, pos Pos)
-	ClearRight(pos Pos)
-}
 
 type State struct {
 	Style          Style
@@ -53,23 +19,9 @@ type State struct {
 	output Output
 }
 
-func New(output Output, opts ...LogOption) *Log {
-	state := &State{
-		MaxLine: defaultLines,
-		MaxCol:  defaultCols,
-
-		LineDiscipline: Cooked,
-
-		output: output,
-	}
-	log := &Log{
-		Parser: NewParser(state),
-		State:  state,
-	}
-	for _, opt := range opts {
-		opt(log)
-	}
-	return log
+type Output interface {
+	Print(data []byte, style Style, pos Pos)
+	ClearRight(pos Pos)
 }
 
 func (s *State) Action(act Action) {
