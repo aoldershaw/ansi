@@ -79,14 +79,14 @@ func TestState(t *testing.T) {
 					style: ansi.Style{
 						Foreground: ansi.Red,
 						Background: ansi.Blue,
-						Bold:       true,
-						Faint:      true,
-						Italic:     true,
-						Underline:  true,
-						Blink:      true,
-						Inverted:   true,
-						Fraktur:    true,
-						Framed:     true,
+						Modifier: ansi.Bold |
+							ansi.Faint |
+							ansi.Italic |
+							ansi.Underline |
+							ansi.Blink |
+							ansi.Inverted |
+							ansi.Fraktur |
+							ansi.Framed,
 					},
 				},
 			},

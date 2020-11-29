@@ -42,21 +42,21 @@ func (s *State) Action(act Action) error {
 	case SetBackground:
 		s.Style.Background = Color(v)
 	case SetBold:
-		s.Style.Bold = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Bold)
 	case SetFaint:
-		s.Style.Faint = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Faint)
 	case SetItalic:
-		s.Style.Italic = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Italic)
 	case SetUnderline:
-		s.Style.Underline = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Underline)
 	case SetBlink:
-		s.Style.Blink = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Blink)
 	case SetInverted:
-		s.Style.Inverted = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Inverted)
 	case SetFraktur:
-		s.Style.Fraktur = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Fraktur)
 	case SetFramed:
-		s.Style.Framed = bool(v)
+		s.Style.Modifier.applyBit(bool(v), Framed)
 	case CursorPosition:
 		s.moveCursorTo(v.Line, v.Col)
 	case CursorUp:

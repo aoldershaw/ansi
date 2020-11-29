@@ -208,7 +208,7 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					data:  []byte("bar"),
 					pos:   ansi.Pos{Line: 0, Col: 4},
-					style: ansi.Style{Bold: true},
+					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
 			lines: []ansi.Line{
@@ -219,7 +219,7 @@ func TestInMemory_Print(t *testing.T) {
 					},
 					{
 						Data:  []byte("bar"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 				},
 			},
@@ -235,7 +235,7 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					data:  []byte("bar"),
 					pos:   ansi.Pos{Line: 0, Col: 3},
-					style: ansi.Style{Bold: true},
+					style: ansi.Style{Modifier: ansi.Bold},
 				},
 				{
 					data:  []byte("baz"),
@@ -251,7 +251,7 @@ func TestInMemory_Print(t *testing.T) {
 					},
 					{
 						Data:  []byte("bar"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 				},
 			},
@@ -267,7 +267,7 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					data:  []byte("B"),
 					pos:   ansi.Pos{Line: 0, Col: 1},
-					style: ansi.Style{Bold: true},
+					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
 			lines: []ansi.Line{
@@ -278,7 +278,7 @@ func TestInMemory_Print(t *testing.T) {
 					},
 					{
 						Data:  []byte("B"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 					{
 						Data:  []byte("c"),
@@ -298,14 +298,14 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					data:  []byte("ABC"),
 					pos:   ansi.Pos{Line: 0, Col: 0},
-					style: ansi.Style{Bold: true},
+					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
 			lines: []ansi.Line{
 				{
 					{
 						Data:  []byte("ABC"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 				},
 			},
@@ -321,17 +321,17 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					data:  []byte("def"),
 					pos:   ansi.Pos{Line: 0, Col: 3},
-					style: ansi.Style{Italic: true},
+					style: ansi.Style{Modifier: ansi.Italic},
 				},
 				{
 					data:  []byte("ghi"),
 					pos:   ansi.Pos{Line: 0, Col: 6},
-					style: ansi.Style{Underline: true},
+					style: ansi.Style{Modifier: ansi.Underline},
 				},
 				{
 					data:  []byte("BCD"),
 					pos:   ansi.Pos{Line: 0, Col: 1},
-					style: ansi.Style{Bold: true},
+					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
 			lines: []ansi.Line{
@@ -342,15 +342,15 @@ func TestInMemory_Print(t *testing.T) {
 					},
 					{
 						Data:  []byte("BCD"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 					{
 						Data:  []byte("ef"),
-						Style: ansi.Style{Italic: true},
+						Style: ansi.Style{Modifier: ansi.Italic},
 					},
 					{
 						Data:  []byte("ghi"),
-						Style: ansi.Style{Underline: true},
+						Style: ansi.Style{Modifier: ansi.Underline},
 					},
 				},
 			},
@@ -366,17 +366,17 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					data:  []byte("def"),
 					pos:   ansi.Pos{Line: 0, Col: 3},
-					style: ansi.Style{Italic: true},
+					style: ansi.Style{Modifier: ansi.Italic},
 				},
 				{
 					data:  []byte("ghi"),
 					pos:   ansi.Pos{Line: 0, Col: 6},
-					style: ansi.Style{Underline: true},
+					style: ansi.Style{Modifier: ansi.Underline},
 				},
 				{
 					data:  []byte("CDEFG"),
 					pos:   ansi.Pos{Line: 0, Col: 2},
-					style: ansi.Style{Bold: true},
+					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
 			lines: []ansi.Line{
@@ -387,11 +387,11 @@ func TestInMemory_Print(t *testing.T) {
 					},
 					{
 						Data:  []byte("CDEFG"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 					{
 						Data:  []byte("hi"),
-						Style: ansi.Style{Underline: true},
+						Style: ansi.Style{Modifier: ansi.Underline},
 					},
 				},
 			},
@@ -407,17 +407,17 @@ func TestInMemory_Print(t *testing.T) {
 				{
 					data:  []byte("def"),
 					pos:   ansi.Pos{Line: 0, Col: 3},
-					style: ansi.Style{Italic: true},
+					style: ansi.Style{Modifier: ansi.Italic},
 				},
 				{
 					data:  []byte("ghi"),
 					pos:   ansi.Pos{Line: 0, Col: 6},
-					style: ansi.Style{Underline: true},
+					style: ansi.Style{Modifier: ansi.Underline},
 				},
 				{
 					data:  []byte("CDEF"),
 					pos:   ansi.Pos{Line: 0, Col: 2},
-					style: ansi.Style{Bold: true},
+					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
 			lines: []ansi.Line{
@@ -428,11 +428,11 @@ func TestInMemory_Print(t *testing.T) {
 					},
 					{
 						Data:  []byte("CDEF"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 					{
 						Data:  []byte("ghi"),
-						Style: ansi.Style{Underline: true},
+						Style: ansi.Style{Modifier: ansi.Underline},
 					},
 				},
 			},

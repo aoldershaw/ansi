@@ -48,7 +48,7 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 					},
 					{
 						Data:  []byte("world"),
-						Style: ansi.Style{Bold: true},
+						Style: ansi.Style{Modifier: ansi.Bold},
 					},
 				},
 				{
