@@ -8,14 +8,6 @@ import (
 	"github.com/onsi/gomega/format"
 )
 
-type spyHandler struct {
-	actions []ansi.Action
-}
-
-func (s *spyHandler) Action(a ansi.Action) {
-	s.actions = append(s.actions, a)
-}
-
 func TestParser_Actions(t *testing.T) {
 	format.UseStringerRepresentation = true
 
@@ -249,12 +241,11 @@ func TestParser_Actions(t *testing.T) {
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			handler := &spyHandler{}
-			p := ansi.NewParser(handler)
+			p := ansi.NewParser()
 
-			p.Parse(tt.input)
+			actions := p.ParseAll(tt.input)
 
-			g.Expect(handler.actions).To(Equal(tt.actions))
+			g.Expect(actions).To(Equal(tt.actions))
 		})
 	}
 }
@@ -346,13 +337,14 @@ func TestParser_Carryover(t *testing.T) {
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			handler := &spyHandler{}
-			p := ansi.NewParser(handler)
+			p := ansi.NewParser()
 
-			p.Parse(tt.input1)
-			p.Parse(tt.input2)
+			actions := append(
+				p.ParseAll(tt.input1),
+				p.ParseAll(tt.input2)...,
+			)
 
-			g.Expect(handler.actions).To(Equal(tt.actions))
+			g.Expect(actions).To(Equal(tt.actions))
 		})
 	}
 }

@@ -2,7 +2,6 @@ package ansi_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -124,7 +123,7 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			g := NewGomegaWithT(t)
 
 			out := &ansi.InMemory{}
-			log := ansi.New(out)
+			writer := ansi.NewWriter(out)
 
 			initialEvents := make([][]byte, len(tt.events))
 			for i, evt := range tt.events {
@@ -133,7 +132,8 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			}
 
 			for _, evt := range tt.events {
-				log.Parse(evt)
+				_, err := writer.Write(evt)
+				g.Expect(err).ToNot(HaveOccurred())
 			}
 
 			g.Expect(out.Lines).To(Equal(tt.lines))
@@ -156,10 +156,13 @@ func benchmark(b *testing.B, numEvents int, numBytesPerEvent int, probOfControlS
 
 	for n := 0; n < b.N; n++ {
 		out := &ansi.InMemory{}
-		log := ansi.New(out)
+		writer := ansi.NewWriter(out)
 
 		for _, evt := range events {
-			log.Parse(evt)
+			_, err := writer.Write(evt)
+			if err != nil {
+				b.Fatal(err)
+			}
 		}
 	}
 }
@@ -202,14 +205,14 @@ func generateEvent(r *rand.Rand, length int, probOfControlSequence float64) []by
 	return buf.Bytes()
 }
 
-func Example() {
-	output := &ansi.InMemory{}
-	interpreter := ansi.New(output)
-
-	interpreter.Parse([]byte("\x1b[1mbold\x1b[m text"))
-	interpreter.Parse([]byte("\nline 2"))
-
-	linesJSON, _ := json.Marshal(output.Lines)
-	fmt.Println(string(linesJSON))
-	// Output: [[{"data":"bold","style":{"bold":true}},{"data":" text","style":{}}],[{"data":"line 2","style":{}}]]
-}
+//func Example() {
+//	output := &ansi.InMemory{}
+//	interpreter := ansi.New(output)
+//
+//	interpreter.Parse([]byte("\x1b[1mbold\x1b[m text"))
+//	interpreter.Parse([]byte("\nline 2"))
+//
+//	linesJSON, _ := json.Marshal(output.Lines)
+//	fmt.Println(string(linesJSON))
+//	// Output: [[{"data":"bold","style":{"bold":true}},{"data":" text","style":{}}],[{"data":"line 2","style":{}}]]
+//}

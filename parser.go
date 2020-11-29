@@ -2,7 +2,9 @@ package ansi
 
 const escapeCode = '\x1b'
 
-type stateFn func(p *Parser) stateFn
+const maxActionsPerIteration = 3
+
+type stateFn func(p *Parser, input []byte) stateFn
 
 type maybeInt struct {
 	valid bool
@@ -16,69 +18,106 @@ func (m maybeInt) withDefault(i int) int {
 	return m.value
 }
 
-type Parser struct {
-	handler Handler
+type maybeAction struct {
+	valid bool
+	value Action
+}
 
+type Parser struct {
 	start int
 	pos   int
-	input []byte
 
 	currNum maybeInt
 	nums    []maybeInt
 
 	state stateFn
+
+	actions      [maxActionsPerIteration]maybeAction
+	action_write uint8
+	action_read  uint8
 }
 
-func NewParser(handler Handler) *Parser {
+func NewParser() *Parser {
 	return &Parser{
-		handler: handler,
 		// In most cases, this pre-allocation will be plenty
-		nums:  make([]maybeInt, 0, 16),
+		nums:  make([]maybeInt, 0, 8),
 		state: parseBytes,
 	}
 }
 
-func NewParserWithChan() (*Parser, <-chan Action, func()) {
-	c := make(chan Action)
-	done := func() {
-		close(c)
+func (p *Parser) Parse(input []byte) (Action, bool, []byte) {
+	if p.actions[p.action_read].valid {
+		return p.nextAction(), true, input
 	}
-	return NewParser(HandlerFunc(func(act Action) {
-		c <- act
-	})), c, done
-}
-
-func (p *Parser) Parse(input []byte) {
 	p.pos = 0
 	p.start = 0
-	p.input = input
 
-	for p.pos < len(p.input) {
-		p.state = p.state(p)
+	var done bool
+	for !done && p.pos < len(input) {
+		p.state = p.state(p, input)
+		done = p.actions[p.action_read].valid
 	}
+	if !done {
+		return nil, false, nil
+	}
+	return p.nextAction(), true, input[p.pos:]
 }
 
-func (p *Parser) print() {
-	data := p.input[p.start:p.pos]
-	clone := make([]byte, len(data))
-	copy(clone, data)
-	p.emit(Print(clone))
+func (p *Parser) ParseAll(input []byte) []Action {
+	var actions []Action
+	for {
+		var (
+			action Action
+			ok     bool
+		)
+		action, ok, input = p.Parse(input)
+		if !ok {
+			break
+		}
+		actions = append(actions, action)
+	}
+	return actions
 }
 
 func (p *Parser) emit(action Action) {
-	p.handler.Action(action)
+	i := p.action_write
+	if p.actions[i].valid {
+		panic("already valid")
+	}
+	p.actions[i].valid = true
+	p.actions[i].value = action
+
+	p.action_write = (i + 1) % maxActionsPerIteration
+
 	p.start = p.pos
+}
+
+func (p *Parser) nextAction() Action {
+	i := p.action_read
+	if !p.actions[i].valid {
+		panic("not valid")
+	}
+	p.actions[i].valid = false
+	p.action_read = (i + 1) % maxActionsPerIteration
+	return p.actions[i].value
+}
+
+func (p *Parser) print(input []byte) {
+	data := input[p.start:p.pos]
+	clone := make([]byte, len(data))
+	copy(clone, data)
+	p.emit(Print(clone))
 }
 
 func (p *Parser) ignore() {
 	p.start = p.pos
 }
 
-func (p *Parser) next() (byte, bool) {
-	if p.pos >= len(p.input) {
+func (p *Parser) next(input []byte) (byte, bool) {
+	if p.pos >= len(input) {
 		return 0, false
 	}
-	c := p.input[p.pos]
+	c := input[p.pos]
 	p.pos++
 	return c, true
 }
@@ -87,27 +126,27 @@ func (p *Parser) backup() {
 	p.pos--
 }
 
-func (p *Parser) peek() byte {
-	if p.pos >= len(p.input) {
+func (p *Parser) peek(input []byte) byte {
+	if p.pos >= len(input) {
 		return 0
 	}
-	return p.input[p.pos]
+	return input[p.pos]
 }
 
-func parseBytes(p *Parser) stateFn {
+func parseBytes(p *Parser, input []byte) stateFn {
 	for {
-		switch c := p.peek(); c {
+		switch c := p.peek(input); c {
 		case escapeCode:
 			if p.pos > p.start {
-				p.print()
+				p.print(input)
 			}
-			p.next()
+			p.next(input)
 			return parseEscapeSequence
 		case '\n', '\r':
 			if p.pos > p.start {
-				p.print()
+				p.print(input)
 			}
-			p.next()
+			p.next(input)
 			if c == '\n' {
 				p.emit(Linebreak{})
 			} else {
@@ -115,20 +154,20 @@ func parseBytes(p *Parser) stateFn {
 			}
 			return parseBytes
 		}
-		if _, ok := p.next(); !ok {
+		if _, ok := p.next(input); !ok {
 			break
 		}
 	}
 	if p.pos > p.start {
-		p.print()
+		p.print(input)
 	}
 	return parseBytes
 }
 
-func parseEscapeSequence(p *Parser) stateFn {
+func parseEscapeSequence(p *Parser, input []byte) stateFn {
 	p.nums = p.nums[:0]
 	p.currNum = maybeInt{}
-	next, ok := p.next()
+	next, ok := p.next(input)
 	if !ok {
 		return parseEscapeSequence
 	}
@@ -140,11 +179,11 @@ func parseEscapeSequence(p *Parser) stateFn {
 	return parseControlSequence
 }
 
-func parseControlSequence(p *Parser) stateFn {
+func parseControlSequence(p *Parser, input []byte) stateFn {
 	var ok bool
 	for {
 		var d byte
-		d, ok = p.next()
+		d, ok = p.next(input)
 		if !ok {
 			return parseControlSequence
 		}
@@ -161,8 +200,8 @@ func parseControlSequence(p *Parser) stateFn {
 	return parseControlSequenceMode
 }
 
-func parseControlSequenceMode(p *Parser) stateFn {
-	mode, nextOK := p.next()
+func parseControlSequenceMode(p *Parser, input []byte) stateFn {
+	mode, nextOK := p.next(input)
 	if !nextOK {
 		return parseControlSequence
 	}
