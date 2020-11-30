@@ -255,14 +255,15 @@ func TestParser_Carryover(t *testing.T) {
 
 	for _, tt := range []struct {
 		description string
-		input1      []byte
-		input2      []byte
+		inputs      [][]byte
 		actions     []ansi.Action
 	}{
 		{
 			description: "no partial escapes",
-			input1:      []byte("\x1b[31mred text\x1b[m"),
-			input2:      []byte("\x1b[32mnow it's green"),
+			inputs: [][]byte{
+				[]byte("\x1b[31mred text\x1b[m"),
+				[]byte("\x1b[32mnow it's green"),
+			},
 			actions: []ansi.Action{
 				ansi.SetForeground(ansi.Red),
 				ansi.Print("red text"),
@@ -273,8 +274,10 @@ func TestParser_Carryover(t *testing.T) {
 		},
 		{
 			description: "partial escape sequence",
-			input1:      []byte("hello\x1b"),
-			input2:      []byte("[32mgreen"),
+			inputs: [][]byte{
+				[]byte("hello\x1b"),
+				[]byte("[32mgreen"),
+			},
 			actions: []ansi.Action{
 				ansi.Print("hello"),
 				ansi.SetForeground(ansi.Green),
@@ -283,8 +286,10 @@ func TestParser_Carryover(t *testing.T) {
 		},
 		{
 			description: "partial escape sequence with bracket",
-			input1:      []byte("hello\x1b["),
-			input2:      []byte("32mgreen"),
+			inputs: [][]byte{
+				[]byte("hello\x1b["),
+				[]byte("32mgreen"),
+			},
 			actions: []ansi.Action{
 				ansi.Print("hello"),
 				ansi.SetForeground(ansi.Green),
@@ -293,8 +298,10 @@ func TestParser_Carryover(t *testing.T) {
 		},
 		{
 			description: "partial escape sequence with bracket and code",
-			input1:      []byte("hello\x1b[32"),
-			input2:      []byte("mgreen"),
+			inputs: [][]byte{
+				[]byte("hello\x1b[32"),
+				[]byte("mgreen"),
+			},
 			actions: []ansi.Action{
 				ansi.Print("hello"),
 				ansi.SetForeground(ansi.Green),
@@ -303,8 +310,10 @@ func TestParser_Carryover(t *testing.T) {
 		},
 		{
 			description: "partial escape sequence with bracket and codes",
-			input1:      []byte("hello\x1b[32;1"),
-			input2:      []byte("mgreen and bold"),
+			inputs: [][]byte{
+				[]byte("hello\x1b[32;1"),
+				[]byte("mgreen and bold"),
+			},
 			actions: []ansi.Action{
 				ansi.Print("hello"),
 				ansi.SetForeground(ansi.Green),
@@ -314,8 +323,10 @@ func TestParser_Carryover(t *testing.T) {
 		},
 		{
 			description: "partial escape sequence with bracket codes split up",
-			input1:      []byte("hello\x1b[32;"),
-			input2:      []byte("1mgreen and bold"),
+			inputs: [][]byte{
+				[]byte("hello\x1b[32;"),
+				[]byte("1mgreen and bold"),
+			},
 			actions: []ansi.Action{
 				ansi.Print("hello"),
 				ansi.SetForeground(ansi.Green),
@@ -325,8 +336,10 @@ func TestParser_Carryover(t *testing.T) {
 		},
 		{
 			description: "partial escape sequence with code split up",
-			input1:      []byte("hello\x1b[3"),
-			input2:      []byte("2;1mgreen and bold"),
+			inputs: [][]byte{
+				[]byte("hello\x1b[3"),
+				[]byte("2;1mgreen and bold"),
+			},
 			actions: []ansi.Action{
 				ansi.Print("hello"),
 				ansi.SetForeground(ansi.Green),
@@ -334,15 +347,36 @@ func TestParser_Carryover(t *testing.T) {
 				ansi.Print("green and bold"),
 			},
 		},
+		{
+			description: "incomplete rune",
+			inputs: [][]byte{
+				[]byte("hello \xe3\x81"),
+			},
+			actions: []ansi.Action{
+				ansi.Print("hello "),
+			},
+		},
+		{
+			description: "incomplete rune over multiple events",
+			inputs: [][]byte{
+				[]byte("hello \xe3"),
+				[]byte("\x81"),
+				[]byte("\x93"),
+			},
+			actions: []ansi.Action{
+				ansi.Print("hello "),
+				ansi.Print("こ"),
+			},
+		},
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			p := ansi.NewParser()
 
-			actions := append(
-				p.ParseAll(tt.input1),
-				p.ParseAll(tt.input2)...,
-			)
+			var actions []ansi.Action
+			for _, input := range tt.inputs {
+				actions = append(actions, p.ParseAll(input)...)
+			}
 
 			g.Expect(actions).To(Equal(tt.actions))
 		})

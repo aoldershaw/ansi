@@ -78,6 +78,20 @@ func TestAnsi_Integration_InMemory(t *testing.T) {
 			},
 		},
 		{
+			description: "runes that are split over multiple events",
+			events: [][]byte{
+				[]byte("hello \xe3\x81"),
+				[]byte("\x93 world"),
+			},
+			lines: []ansi.Line{
+				{
+					{
+						Data: ansi.Text("hello こ world"),
+					},
+				},
+			},
+		},
+		{
 			description: "moving the cursor",
 			events: [][]byte{
 				[]byte("hello\x1b[3Cworld"),

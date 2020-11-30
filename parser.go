@@ -1,5 +1,7 @@
 package ansi
 
+import "unicode/utf8"
+
 const escapeCode = '\x1b'
 
 type stateFn func(p *Parser, input []byte) stateFn
@@ -27,6 +29,8 @@ type Parser struct {
 
 	actions  []Action
 	action_i int
+
+	dangling []byte
 }
 
 func NewParser() *Parser {
@@ -45,6 +49,8 @@ func (p *Parser) Parse(input []byte) (Action, bool, []byte) {
 	p.pos = 0
 	p.start = 0
 
+	input = p.extractDangling(input)
+
 	for len(p.actions) == 0 && p.pos < len(input) {
 		p.state = p.state(p, input)
 	}
@@ -52,6 +58,26 @@ func (p *Parser) Parse(input []byte) (Action, bool, []byte) {
 		return nil, false, nil
 	}
 	return p.nextAction(), true, input[p.pos:]
+}
+
+// Handle cases where a rune is split up over multiple input events - find the
+// boundary for the last complete rune, and mark the incomplete rune as dangling
+// for the next input event that comes in
+func (p *Parser) extractDangling(input []byte) []byte {
+	if len(p.dangling) > 0 {
+		// This can be an unfortunate allocation, but it shouldn't matter too much
+		// as dangling bytes will likely be pretty rare
+		input = append(p.dangling, input...)
+	}
+	leftover := 0
+	for ; leftover < utf8.UTFMax && leftover < len(input); leftover++ {
+		r, _ := utf8.DecodeLastRune(input[:len(input)-leftover])
+		if r != utf8.RuneError {
+			break
+		}
+	}
+	p.dangling = input[len(input)-leftover:]
+	return input[:len(input)-leftover]
 }
 
 func (p *Parser) ParseAll(input []byte) []Action {
