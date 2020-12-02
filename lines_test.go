@@ -8,12 +8,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestInMemory_Print(t *testing.T) {
+func TestLines_Print(t *testing.T) {
 	for _, tt := range []struct {
 		description string
-		initLines   []ansi.Line
+		initLines   ansi.Lines
 		printCalls  []printCall
-		lines       []ansi.Line
+		lines       ansi.Lines
 	}{
 		{
 			description: "printing to a new line creates a new line",
@@ -23,7 +23,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 0, Col: 0},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("foo"),
@@ -39,7 +39,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 1, Col: 0},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{},
 				{
 					{
@@ -56,7 +56,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: -1, Col: -1},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("foo"),
@@ -76,7 +76,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 0, Col: 3},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("foobar"),
@@ -86,7 +86,7 @@ func TestInMemory_Print(t *testing.T) {
 		},
 		{
 			description: "printing to an empty existing line works",
-			initLines: []ansi.Line{
+			initLines: ansi.Lines{
 				{},
 			},
 			printCalls: []printCall{
@@ -99,7 +99,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 1, Col: 6},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("   foo"),
@@ -124,7 +124,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 0, Col: 5},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("foo  bar"),
@@ -144,7 +144,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 1, Col: 7},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("     foo"),
@@ -169,7 +169,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 0, Col: 1},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("fbar"),
@@ -189,7 +189,7 @@ func TestInMemory_Print(t *testing.T) {
 					pos:  ansi.Pos{Line: 0, Col: 1},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("fbaro"),
@@ -211,7 +211,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data:  []byte("foo "),
@@ -243,7 +243,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: ansi.Style{},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data:  []byte("baz"),
@@ -270,7 +270,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data:  []byte("a"),
@@ -301,7 +301,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data:  []byte("ABC"),
@@ -334,7 +334,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data:  []byte("a"),
@@ -379,7 +379,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data:  []byte("ab"),
@@ -420,7 +420,7 @@ func TestInMemory_Print(t *testing.T) {
 					style: ansi.Style{Modifier: ansi.Bold},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data:  []byte("ab"),
@@ -440,27 +440,27 @@ func TestInMemory_Print(t *testing.T) {
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			o := &ansi.InMemory{Lines: tt.initLines}
+			out := tt.initLines
 
 			for _, pc := range tt.printCalls {
-				o.Print(pc.data, pc.style, pc.pos)
+				out.Print(pc.data, pc.style, pc.pos)
 			}
 
-			g.Expect(o.Lines).To(Equal(tt.lines))
+			g.Expect(out).To(Equal(tt.lines))
 		})
 	}
 }
 
-func TestInMemory_ClearRight(t *testing.T) {
+func TestLines_ClearRight(t *testing.T) {
 	for _, tt := range []struct {
 		description string
-		initLines   []ansi.Line
+		initLines   ansi.Lines
 		clearCalls  []clearCall
-		lines       []ansi.Line
+		lines       ansi.Lines
 	}{
 		{
 			description: "clears within a chunk",
-			initLines: []ansi.Line{
+			initLines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("abcdefghi"),
@@ -472,7 +472,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: ansi.Pos{Line: 0, Col: 3},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("abc"),
@@ -482,7 +482,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 		},
 		{
 			description: "clears multiple chunks",
-			initLines: []ansi.Line{
+			initLines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("abc"),
@@ -500,7 +500,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: ansi.Pos{Line: 0, Col: 2},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("ab"),
@@ -510,7 +510,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 		},
 		{
 			description: "clears from the second chunk on",
-			initLines: []ansi.Line{
+			initLines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("abc"),
@@ -528,7 +528,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: ansi.Pos{Line: 0, Col: 5},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("abc"),
@@ -541,7 +541,7 @@ func TestInMemory_ClearRight(t *testing.T) {
 		},
 		{
 			description: "fully clearing a chunk removes it",
-			initLines: []ansi.Line{
+			initLines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("abc"),
@@ -559,33 +559,33 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: ansi.Pos{Line: 0, Col: 0},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{},
 			},
 		},
 		{
 			description: "clearing an out of bounds line is a noop",
-			initLines:   []ansi.Line{},
+			initLines:   ansi.Lines{},
 			clearCalls: []clearCall{
 				{
 					pos: ansi.Pos{Line: 0, Col: 0},
 				},
 			},
-			lines: []ansi.Line{},
+			lines: ansi.Lines{},
 		},
 		{
 			description: "clearing a negative line is a noop",
-			initLines:   []ansi.Line{},
+			initLines:   ansi.Lines{},
 			clearCalls: []clearCall{
 				{
 					pos: ansi.Pos{Line: -1, Col: 0},
 				},
 			},
-			lines: []ansi.Line{},
+			lines: ansi.Lines{},
 		},
 		{
 			description: "clearing from a negative column is the same as from 0",
-			initLines: []ansi.Line{
+			initLines: ansi.Lines{
 				{
 					{
 						Data: ansi.Text("abc"),
@@ -603,20 +603,20 @@ func TestInMemory_ClearRight(t *testing.T) {
 					pos: ansi.Pos{Line: 0, Col: -1},
 				},
 			},
-			lines: []ansi.Line{
+			lines: ansi.Lines{
 				{},
 			},
 		},
 	} {
 		t.Run(tt.description, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			o := &ansi.InMemory{Lines: tt.initLines}
+			o := tt.initLines
 
 			for _, cc := range tt.clearCalls {
 				o.ClearRight(cc.pos)
 			}
 
-			g.Expect(o.Lines).To(Equal(tt.lines))
+			g.Expect(o).To(Equal(tt.lines))
 		})
 	}
 }

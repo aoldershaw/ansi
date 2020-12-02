@@ -38,23 +38,21 @@ type Chunk struct {
 
 type Line = []Chunk
 
-type InMemory struct {
-	Lines []Line
-}
+type Lines []Line
 
-func (b *InMemory) Print(data []byte, style Style, pos Pos) error {
+func (l *Lines) Print(data []byte, style Style, pos Pos) error {
 	if pos.Line < 0 {
 		pos.Line = 0
 	}
 	if pos.Col < 0 {
 		pos.Col = 0
 	}
-	numEmpty := pos.Line - len(b.Lines)
+	numEmpty := pos.Line - len(*l)
 	for numEmpty > 0 {
-		b.Lines = append(b.Lines, Line{})
+		*l = append(*l, Line{})
 		numEmpty--
 	}
-	if pos.Line >= len(b.Lines) {
+	if pos.Line >= len(*l) {
 		spacerLen := pos.Col
 		if spacerLen > 0 {
 			newData := make([]byte, spacerLen+len(data))
@@ -62,28 +60,28 @@ func (b *InMemory) Print(data []byte, style Style, pos Pos) error {
 			copy(newData[spacerLen:], data)
 			data = newData
 		}
-		b.Lines = append(b.Lines, Line{{Data: data, Style: style}})
+		*l = append(*l, Line{{Data: data, Style: style}})
 		return nil
 	}
 
-	lineLen := b.lineLength(pos.Line)
+	lineLen := l.lineLength(pos.Line)
 
 	if pos.Col >= lineLen {
-		b.appendToLine(data, style, pos)
+		l.appendToLine(data, style, pos)
 	} else {
-		b.insertWithinLine(data, style, pos)
+		l.insertWithinLine(data, style, pos)
 	}
 	return nil
 }
 
-func (b *InMemory) appendToLine(data []byte, style Style, pos Pos) {
-	line := b.Lines[pos.Line]
+func (l Lines) appendToLine(data []byte, style Style, pos Pos) {
+	line := l[pos.Line]
 
-	lineLen := b.lineLength(pos.Line)
+	lineLen := l.lineLength(pos.Line)
 	spacerLen := pos.Col - lineLen
 
 	if len(line) == 0 {
-		b.addFirstChunk(data, style, pos)
+		l.addFirstChunk(data, style, pos)
 		return
 	}
 
@@ -93,21 +91,21 @@ func (b *InMemory) appendToLine(data []byte, style Style, pos Pos) {
 		lastChunk.Data = append(lastChunk.Data, data...)
 		return
 	}
-	b.Lines[pos.Line] = append(line, Chunk{Data: data, Style: style})
+	l[pos.Line] = append(line, Chunk{Data: data, Style: style})
 }
 
-func (b *InMemory) addFirstChunk(data []byte, style Style, pos Pos) {
+func (l Lines) addFirstChunk(data []byte, style Style, pos Pos) {
 	if pos.Col > 0 {
 		newData := make([]byte, pos.Col+len(data))
 		copy(newData, spacer(pos.Col))
 		copy(newData[pos.Col:], data)
 		data = newData
 	}
-	b.Lines[pos.Line] = Line{{Data: data, Style: style}}
+	l[pos.Line] = Line{{Data: data, Style: style}}
 }
 
-func (b *InMemory) insertWithinLine(data []byte, style Style, pos Pos) {
-	line := b.Lines[pos.Line]
+func (l Lines) insertWithinLine(data []byte, style Style, pos Pos) {
+	line := l[pos.Line]
 	chunkStart := 0
 	for i := 0; i < len(line); i++ {
 		chunk := line[i]
@@ -122,7 +120,7 @@ func (b *InMemory) insertWithinLine(data []byte, style Style, pos Pos) {
 		}
 
 		if chunkInterval.contains(printInterval) {
-			b.insertInsideChunk(data, style, pos.Line, relCol, i)
+			l.insertInsideChunk(data, style, pos.Line, relCol, i)
 			return
 		}
 		newLine := append(make(Line, 0, len(line)+1), line[:i]...)
@@ -140,19 +138,19 @@ func (b *InMemory) insertWithinLine(data []byte, style Style, pos Pos) {
 		}
 
 		bytesToRemove := len(data) - originalChunkLength + relCol
-		b.removeBytesInLine(bytesToRemove, i, pos.Line, &newLine)
-		b.Lines[pos.Line] = newLine
+		l.removeBytesInLine(bytesToRemove, i, pos.Line, &newLine)
+		l[pos.Line] = newLine
 		return
 	}
 }
 
-func (b InMemory) insertInsideChunk(data []byte, style Style, lineNum, relCol int, chunkIndex int) {
-	chunk := b.Lines[lineNum][chunkIndex]
+func (l Lines) insertInsideChunk(data []byte, style Style, lineNum, relCol int, chunkIndex int) {
+	chunk := l[lineNum][chunkIndex]
 	if chunk.Style == style {
-		copy(b.Lines[lineNum][chunkIndex].Data[relCol:], data)
+		copy(l[lineNum][chunkIndex].Data[relCol:], data)
 		return
 	}
-	line := b.Lines[lineNum]
+	line := l[lineNum]
 	newLine := make(Line, 0, len(line)+2)
 	newLine = append(newLine, line[:chunkIndex]...)
 	if relCol > 0 {
@@ -167,12 +165,12 @@ func (b InMemory) insertInsideChunk(data []byte, style Style, lineNum, relCol in
 		newLine = append(newLine, rightChunk)
 	}
 	newLine = append(newLine, line[chunkIndex+1:]...)
-	b.Lines[lineNum] = newLine
+	l[lineNum] = newLine
 	return
 }
 
-func (b InMemory) removeBytesInLine(bytesToRemove int, chunkIndex int, lineNum int, newLine *Line) {
-	line := b.Lines[lineNum]
+func (l Lines) removeBytesInLine(bytesToRemove int, chunkIndex int, lineNum int, newLine *Line) {
+	line := l[lineNum]
 	for i := chunkIndex + 1; i < len(line); i++ {
 		chunk := line[i]
 		if bytesToRemove >= len(chunk.Data) {
@@ -187,22 +185,22 @@ func (b InMemory) removeBytesInLine(bytesToRemove int, chunkIndex int, lineNum i
 	}
 }
 
-func (b InMemory) lineLength(i int) int {
-	l := 0
-	for _, chunk := range b.Lines[i] {
-		l += len(chunk.Data)
+func (l Lines) lineLength(i int) int {
+	length := 0
+	for _, chunk := range l[i] {
+		length += len(chunk.Data)
 	}
-	return l
+	return length
 }
 
-func (b *InMemory) ClearRight(pos Pos) error {
-	if pos.Line < 0 || pos.Line >= len(b.Lines) {
+func (l Lines) ClearRight(pos Pos) error {
+	if pos.Line < 0 || pos.Line >= len(l) {
 		return nil
 	}
 	if pos.Col < 0 {
 		pos.Col = 0
 	}
-	line := b.Lines[pos.Line]
+	line := l[pos.Line]
 	chunkEnd := 0
 	for i := 0; i < len(line); i++ {
 		chunk := &line[i]
@@ -216,7 +214,7 @@ func (b *InMemory) ClearRight(pos Pos) error {
 		if len(chunk.Data) == 0 {
 			keepUpToChunk--
 		}
-		b.Lines[pos.Line] = line[:keepUpToChunk+1]
+		l[pos.Line] = line[:keepUpToChunk+1]
 		return nil
 	}
 	return nil
