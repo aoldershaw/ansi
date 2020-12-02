@@ -12,13 +12,13 @@ import (
 )
 ...
 
-output := &ansi.InMemory{}
-writer := ansi.NewWriter(output)
+var lines ansi.Lines
+writer := ansi.NewWriter(&lines)
 
 writer.Write([]byte("\x1b[1mbold\x1b[m not bold"))
 writer.Write([]byte("\nline 2"))
 
-linesJSON, _ := json.MarshalIndent(output.Lines, "", "  ")
+linesJSON, _ := json.MarshalIndent(lines, "", "  ")
 fmt.Println(string(linesJSON))
 ```
 
@@ -47,10 +47,9 @@ Output:
 ]
 ```
 
-Currently, the only provided output method is `ansi.InMemory`,
-which stores all the lines of text in memory. A line is represented
-as an `ansi.Line`, which is a slice of `ansi.Chunk`. `ansi.Chunk`s
-are intended to be concatenated in order.
+Currently, the only provided output method is `ansi.Lines`, which stores all
+the lines of text in memory. A line is a slice of `[]ansi.Chunk` - a stylized
+chunk of text. `ansi.Chunk`s are intended to be concatenated in order.
 
 ### Parser
 
