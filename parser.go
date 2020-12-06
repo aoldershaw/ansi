@@ -113,10 +113,7 @@ func (p *Parser) emit(action Action) {
 }
 
 func (p *Parser) print(input []byte) {
-	data := input[p.start:p.pos]
-	printAction := make(Print, len(data))
-	copy(printAction, data)
-	p.emit(printAction)
+	p.emit(Print(input[p.start:p.pos]))
 }
 
 func (p *Parser) ignore() {

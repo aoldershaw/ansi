@@ -54,13 +54,10 @@ func (l *Lines) Print(data []byte, style Style, pos Pos) error {
 	}
 	if pos.Line >= len(*l) {
 		spacerLen := pos.Col
-		if spacerLen > 0 {
-			newData := make([]byte, spacerLen+len(data))
-			copy(newData, spacer(spacerLen))
-			copy(newData[spacerLen:], data)
-			data = newData
-		}
-		*l = append(*l, Line{{Data: data, Style: style}})
+		newData := make([]byte, spacerLen+len(data))
+		copy(newData, spacer(spacerLen))
+		copy(newData[spacerLen:], data)
+		*l = append(*l, Line{{Data: newData, Style: style}})
 		return nil
 	}
 
@@ -91,16 +88,16 @@ func (l Lines) appendToLine(data []byte, style Style, pos Pos) {
 		lastChunk.Data = append(lastChunk.Data, data...)
 		return
 	}
-	l[pos.Line] = append(line, Chunk{Data: data, Style: style})
+	newData := make([]byte, len(data))
+	copy(newData, data)
+	l[pos.Line] = append(line, Chunk{Data: newData, Style: style})
 }
 
 func (l Lines) addFirstChunk(data []byte, style Style, pos Pos) {
-	if pos.Col > 0 {
-		newData := make([]byte, pos.Col+len(data))
-		copy(newData, spacer(pos.Col))
-		copy(newData[pos.Col:], data)
-		data = newData
-	}
+	newData := make([]byte, pos.Col+len(data))
+	copy(newData, spacer(pos.Col))
+	copy(newData[pos.Col:], data)
+	data = newData
 	l[pos.Line] = Line{{Data: data, Style: style}}
 }
 
@@ -134,7 +131,9 @@ func (l Lines) insertWithinLine(data []byte, style Style, pos Pos) {
 			if len(chunk.Data) > 0 {
 				newLine = append(newLine, chunk)
 			}
-			newLine = append(newLine, Chunk{Data: data, Style: style})
+			newData := make([]byte, len(data))
+			copy(newData, data)
+			newLine = append(newLine, Chunk{Data: newData, Style: style})
 		}
 
 		bytesToRemove := len(data) - originalChunkLength + relCol

@@ -19,11 +19,6 @@ type State struct {
 	output Output
 }
 
-type Output interface {
-	Print(data []byte, style Style, pos Pos) error
-	ClearRight(pos Pos) error
-}
-
 func (s *State) Action(act Action) error {
 	switch v := act.(type) {
 	case Print:
