@@ -39,7 +39,7 @@ func (p *spyOutput) ClearRight(pos ansi.Pos) error {
 	return nil
 }
 
-func TestState(t *testing.T) {
+func TestWriter_Action(t *testing.T) {
 	for _, tt := range []struct {
 		description    string
 		lineDiscipline ansi.LineDiscipline
@@ -380,7 +380,7 @@ func TestState(t *testing.T) {
 			writer := ansi.NewWriter(spyOutput, ansi.WithLineDiscipline(tt.lineDiscipline))
 
 			for _, act := range tt.actions {
-				writer.State.Action(act)
+				writer.Action(act)
 			}
 
 			g.Expect(spyOutput.printCalls).To(Equal(tt.printCalls))
