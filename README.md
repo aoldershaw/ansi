@@ -8,18 +8,22 @@ The intended use-case is for processing streams of log output for
 
 ```go
 import (
+    "json"
+
     "github.com/aoldershaw/ansi"
 )
-...
 
-var lines ansi.Lines
-writer := ansi.NewWriter(&lines)
+func main() {
+    var lines ansi.Lines
+    writer := ansi.NewWriter(&lines)
 
-writer.Write([]byte("\x1b[1mbold\x1b[m not bold"))
-writer.Write([]byte("\nline 2"))
+    writer.Write([]byte("\x1b[1mbold\x1b[m not bold"))
+    writer.Write([]byte("\nline 2"))
 
-linesJSON, _ := json.MarshalIndent(lines, "", "  ")
-fmt.Println(string(linesJSON))
+    linesJSON, _ := json.MarshalIndent(lines, "", "  ")
+    fmt.Println(string(linesJSON))
+}
+
 ```
 
 Output:
@@ -48,7 +52,7 @@ Output:
 ```
 
 Currently, the only provided output method is `ansi.Lines`, which stores all
-the lines of text in memory. A line is a slice of `[]ansi.Chunk` - a stylized
+the lines of text in memory. A line is a slice of `ansi.Chunk` - a stylized
 chunk of text. `ansi.Chunk`s are intended to be concatenated in order.
 
 ### Parser
@@ -59,16 +63,16 @@ The parser can also be used independently of the interpreter.
 import (
     "github.com/aoldershaw/ansi"
 )
-...
 
-parser := ansi.NewParser()
+func main() {
+    parser := ansi.NewParser()
 
-input := []byte("some bytes")
-for _, action := range parser.ParseAll(input) {
-    switch v := action.(type) {
-        case ansi.Print:
-            ...
-        ...
+    input := []byte("some bytes")
+    for _, action := range parser.ParseAll(input) {
+        switch v := action.(type) {
+            case ansi.Print:
+                fmt.Println(string(v))
+        }
     }
 }
 ```
