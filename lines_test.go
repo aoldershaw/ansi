@@ -442,11 +442,18 @@ func TestLines_Print(t *testing.T) {
 			g := NewGomegaWithT(t)
 			out := tt.initLines
 
-			for _, pc := range tt.printCalls {
+			printCalls := make([]printCall, len(tt.printCalls))
+
+			for i, pc := range tt.printCalls {
+				printCalls[i] = pc
+				printCalls[i].data = make([]byte, len(pc.data))
+				copy(printCalls[i].data, pc.data)
+
 				out.Print(pc.data, pc.style, pc.pos)
 			}
 
 			g.Expect(out).To(Equal(tt.lines))
+			g.Expect(tt.printCalls).To(Equal(printCalls), "modified input bytes")
 		})
 	}
 }

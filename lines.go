@@ -97,8 +97,7 @@ func (l Lines) addFirstChunk(data []byte, style Style, pos Pos) {
 	newData := make([]byte, pos.Col+len(data))
 	copy(newData, spacer(pos.Col))
 	copy(newData[pos.Col:], data)
-	data = newData
-	l[pos.Line] = Line{{Data: data, Style: style}}
+	l[pos.Line] = Line{{Data: newData, Style: style}}
 }
 
 func (l Lines) insertWithinLine(data []byte, style Style, pos Pos) {
