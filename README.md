@@ -8,7 +8,7 @@ The intended use-case is for processing streams of log output for
 
 ```go
 import (
-    "json"
+    "encoding/json"
 
     "github.com/aoldershaw/ansi"
 )
