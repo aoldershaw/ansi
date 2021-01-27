@@ -212,53 +212,49 @@ func parseControlSequenceMode(p *Parser, input []byte) stateFn {
 	if !nextOK {
 		return parseControlSequence
 	}
-	var (
-		actions []Action
-		ok      bool
-	)
-	if mode == 'm' && len(p.nums) > 2 {
-		actions = make([]Action, len(p.nums))
-	} else {
-		var actionsArr [2]Action
-		actions = actionsArr[:]
-	}
 	var num maybeInt
 	if len(p.nums) > 0 {
 		num = p.nums[len(p.nums)-1]
 	}
 	switch mode {
 	case 'm':
+		anyOk := false
 		for i := 0; i < len(p.nums); i++ {
-			var curOk bool
 			// If the final parameter is not specified, and it's not the first, don't reset
 			// e.g. "\x1b[m" and "\x1b[1;0m" reset, but "\x1b[1;m" sets to bold only (no reset)
 			// Not sure where this is in the spec, but it's how iTerm handles it
 			if i != 0 && i == len(p.nums)-1 && !p.nums[i].valid {
 				break
 			}
-			actions[i], curOk = sgrLookup(p.nums[i].withDefault(0))
-			// "ok" is true if at least one of the actions is valid...otherwise, the whole thing is ignored
-			ok = ok || curOk
+			action, ok := sgrLookup(p.nums[i].withDefault(0))
+			if ok {
+				p.emit(action)
+				anyOk = true
+			}
+		}
+		if !anyOk {
+			p.ignore()
+			return parseBytes
 		}
 	case 'A':
-		actions[0], ok = CursorUp(num.withDefault(1)), true
+		p.emit(CursorUp(num.withDefault(1)))
 	case 'B':
-		actions[0], ok = CursorDown(num.withDefault(1)), true
+		p.emit(CursorDown(num.withDefault(1)))
 	case 'C':
-		actions[0], ok = CursorForward(num.withDefault(1)), true
+		p.emit(CursorForward(num.withDefault(1)))
 	case 'D':
-		actions[0], ok = CursorBack(num.withDefault(1)), true
+		p.emit(CursorBack(num.withDefault(1)))
 	case 'E':
-		actions[0], ok = CursorDown(num.withDefault(1)), true
-		actions[1] = CursorColumn(0)
+		p.emit(CursorDown(num.withDefault(1)))
+		p.emit(CursorColumn(0))
 	case 'F':
-		actions[0], ok = CursorUp(num.withDefault(1)), true
-		actions[1] = CursorColumn(0)
+		p.emit(CursorUp(num.withDefault(1)))
+		p.emit(CursorColumn(0))
 	case 'G':
 		// This *should* be 1 according to https://en.wikipedia.org/wiki/ANSI_escape_code#Terminal_output_sequences
 		// but to match vito/elm-ansi, use 0
 		// Note that 0 and 1 seem to behave in the same way
-		actions[0], ok = CursorColumn(num.withDefault(0)), true
+		p.emit(CursorColumn(num.withDefault(0)))
 	case 'H', 'f':
 		var (
 			firstNum  maybeInt
@@ -270,33 +266,23 @@ func parseControlSequenceMode(p *Parser, input []byte) stateFn {
 		if len(p.nums) > 1 {
 			secondNum = p.nums[1]
 		}
-		actions[0], ok = CursorPosition(Pos{
+		p.emit(CursorPosition(Pos{
 			Line: firstNum.withDefault(1),
 			Col:  secondNum.withDefault(1),
-		}), true
+		}))
 	case 's':
-		actions[0], ok = SaveCursorPosition{}, true
+		p.emit(SaveCursorPosition{})
 	case 'u':
-		actions[0], ok = RestoreCursorPosition{}, true
+		p.emit(RestoreCursorPosition{})
 	case 'J':
-		actions[0], ok = EraseDisplay(num.withDefault(0)), true
+		p.emit(EraseDisplay(num.withDefault(0)))
 	case 'K':
-		actions[0], ok = EraseLine(num.withDefault(0)), true
+		p.emit(EraseLine(num.withDefault(0)))
 	case ';':
 		return parseControlSequence
 	default:
-		ok = false
-	}
-
-	if !ok {
 		p.ignore()
 		return parseBytes
-	}
-	for _, act := range actions {
-		if act == nil {
-			break
-		}
-		p.emit(act)
 	}
 
 	return parseBytes
