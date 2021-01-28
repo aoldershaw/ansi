@@ -5,11 +5,6 @@ jobs:
     trigger: true
   - task: unit
     file: ansi/ci/tasks/unit.yml
-  - task: fuzz
-    file: ansi/ci/tasks/fuzzit.yml
-    params:
-      ACTION: fuzzing
-      FUZZIT_API_KEY: ((aidan-fuzzit-apikey))
 
 resources:
 - name: ansi
